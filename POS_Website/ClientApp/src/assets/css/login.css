@@ -1,0 +1,36 @@
+.login-page {
+  height: 100vh;
+  background: #12c2e9; /* fallback for old browsers */
+  background: -webkit-linear-gradient(
+    to right,
+    #f64f59,
+    #c471ed,
+    #12c2e9
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    to right,
+    #f64f59,
+    #c471ed,
+    #12c2e9
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.login-form {
+  background: #fff;
+  padding: 30px;
+  text-align: center;
+}
+
+.login-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+  top: 100px;
+}
+
+.login-form button {
+  width: 100%;
+}
+
+.login-form .ant-radio-group-large .ant-radio-button-wrapper {
+  margin: 5px;
+  min-width: 150px;
+}
