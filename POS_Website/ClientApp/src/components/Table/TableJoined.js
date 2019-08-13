@@ -43,6 +43,7 @@ class TableJoined extends Component {
   render() {
     // console.log(statisticSelected);
     const { tables } = this.props;
+    console.log(tables);
     return (
       <div>
         <List

@@ -12,7 +12,8 @@ import {
   Table,
   Form,
   Select,
-  Modal
+  Modal,
+  message
 } from "antd";
 import TableJoin from "./TableJoin";
 import TableJoined from "./TableJoined";
@@ -32,7 +33,8 @@ class DetailEmpty extends Component {
       clientModalVisible: false,
       currentClient: "",
       joinModalVisible: false,
-      tmpIDTableJoin: ""
+      tmpIDTableJoin: "",
+      room: ""
     };
   }
 
@@ -64,7 +66,7 @@ class DetailEmpty extends Component {
       minutes = "0" + minutes;
     }
     const time = parseInt(hours + minutes);
-    console.log(time);
+    // console.log(time);
     var activeTime = "";
     mealPeriod.forEach(item => {
       if (time >= item.fromTime && time <= item.toTime) {
@@ -89,7 +91,15 @@ class DetailEmpty extends Component {
   };
 
   setClientInfo = client => {
-    const currentClient = client.clientFolioNum + " - " + client.sClientName;
+    console.log(client);
+    const currentClient = {
+      clientFolioNum: client.clientFolioNum,
+      sClientName: client.sClientName,
+      clientAdressInvoice: client.clientAdressInvoice,
+      clientInvoiceName: client.invoiceName,
+      clientVAT: client.vatCode
+    };
+
     this.setState({
       currentClient,
       clientModalVisible: false
@@ -134,6 +144,7 @@ class DetailEmpty extends Component {
   };
 
   handleOkJoin = async joined => {
+    console.log(joined);
     const { tableCode, tmpIDTableJoin } = this.state;
     const res = await this.props.addTablesJoin(
       tmpIDTableJoin,
@@ -152,6 +163,84 @@ class DetailEmpty extends Component {
     this.setState({
       joinModalVisible: false
     });
+  };
+
+  handleOKNewTable = async () => {
+    console.log("sdasd");
+    const formValues = this.props.form.getFieldsValue();
+    if (
+      (!formValues.adult || formValues.adult.length < 1) &&
+      (!formValues.child || formValues.length < 1)
+    ) {
+      message.warning("Please input Adult or Child!");
+      return;
+    }
+    const {
+      tableCode,
+      statistic,
+      statisticSelected,
+      currentClient,
+      activeTime,
+      tmpIDTableJoin
+    } = this.state;
+    // console.log(statistic, statisticSelected);
+    const userLogin = sessionStorage.getItem("posUser");
+    const posDate = new Date(sessionStorage.getItem("posDate"));
+    const data = {
+      Adult: formValues.adult ? formValues.adult : "",
+      Child: formValues.child ? formValues.child : "",
+      RVCNo: sessionStorage.getItem("rvcNo"),
+      TableMain: tableCode,
+      StsCode1: statisticSelected[0] ? statisticSelected[0].stsCode : "",
+      StsCode2: statisticSelected[1] ? statisticSelected[1].stsCode : "",
+      StsCode3: statisticSelected[2] ? statisticSelected[2].stsCode : "",
+      StsCode4: statisticSelected[3] ? statisticSelected[3].stsCode : "",
+      StsCode5: statisticSelected[4] ? statisticSelected[4].stsCode : "",
+      StsCode6: statisticSelected[5] ? statisticSelected[5].stsCode : "",
+      WSID: "Hau",
+      ClientCode: currentClient.clientFolioNum
+        ? currentClient.clientFolioNum
+        : "",
+      MealNo: activeTime,
+      UserLogin: userLogin,
+      POSDay: posDate.getDate(),
+      POSMonth: posDate.getMonth() + 1,
+      POSYear: posDate.getFullYear(),
+      tmpJoinTable: tmpIDTableJoin,
+      TableInfo: formValues.tableInfo ? formValues.tableInfo : "",
+      RoomCode: formValues.room ? formValues.room : "",
+      ClientName: currentClient.sClientName ? currentClient.sClientName : "",
+      ClientInvoiceName: currentClient.clientInvoiceName
+        ? currentClient.clientInvoiceName
+        : "",
+      ClientAdressInvoice: currentClient.clientAdressInvoice
+        ? currentClient.clientAdressInvoice
+        : "",
+      ClientVAT: currentClient.clientVAT ? currentClient.clientVAT : ""
+    };
+    // console.log(data);
+    const res = await this.props.okNewTable(data);
+  };
+
+  handleInputRoom = e => {
+    this.setState({
+      room: e.target.value
+    });
+  };
+
+  handleChangeStatistic = (index, changeStsCode) => {
+    const { statistic, statisticSelected } = this.state;
+    const sta = statistic[index].find(item => item.stsCode === changeStsCode);
+    statisticSelected[index] = sta;
+    this.setState({
+      statisticSelected
+    });
+  };
+
+  handleCancelNewTable = async () => {
+    const { tmpIDTableJoin } = this.state;
+    const res = await this.props.cancelNewTable(tmpIDTableJoin);
+    console.log(res);
   };
 
   render() {
@@ -186,10 +275,11 @@ class DetailEmpty extends Component {
       userDefineDef,
       statistic,
       statisticSelected,
-      currentClient
+      currentClient,
+      room
     } = this.state;
     const { clientList, tablesJoin } = this.props;
-    console.log(tablesJoin);
+
     const columns = [
       {
         title: "Code",
@@ -239,11 +329,19 @@ class DetailEmpty extends Component {
     return (
       <div className="detail-page">
         <div className="actions-header">
-          <Button className="cancel-btn" size="large" icon="stop" />
+          <Button
+            className="cancel-btn"
+            size="large"
+            icon="stop"
+            onClick={() => this.handleCancelNewTable()}
+            title="Cancel"
+          />
           <Button
             size="large"
             style={{ float: "right" }}
+            title="OK"
             className="check-btn"
+            onClick={() => this.handleOKNewTable()}
             icon="check"
           />
         </div>
@@ -273,27 +371,19 @@ class DetailEmpty extends Component {
                     <Form.Item label="Table">
                       {getFieldDecorator("table", {
                         initialValue: tableCode
-                      })(<Input readOnly />)}
+                      })(<Input />)}
                     </Form.Item>
                     <Form.Item label="Room">
-                      {getFieldDecorator("room", {
-                        initialValue: ""
-                      })(<Input readOnly />)}
+                      {getFieldDecorator("room")(<Input />)}
                     </Form.Item>
                     <Form.Item label="Adult">
-                      {getFieldDecorator("adult", {
-                        initialValue: ""
-                      })(<Input readOnly />)}
+                      {getFieldDecorator("adult")(<Input />)}
                     </Form.Item>
                     <Form.Item label="Child">
-                      {getFieldDecorator("child", {
-                        initialValue: ""
-                      })(<Input readOnly />)}
+                      {getFieldDecorator("child")(<Input />)}
                     </Form.Item>
                     <Form.Item label="Notes">
-                      {getFieldDecorator("email", {
-                        initialValue: ""
-                      })(<TextArea />)}
+                      {getFieldDecorator("tableInfo")(<TextArea />)}
                     </Form.Item>
                   </Form>
                 </div>
@@ -314,13 +404,15 @@ class DetailEmpty extends Component {
                         </Col>
                         <Col span={20}>
                           <Select
-                            defaultValue={statisticSelected[i].stsName}
+                            value={statisticSelected[i].stsName}
                             style={{ width: 120 }}
                             className="sts-v"
-                            // onChange={handleChange}
+                            onChange={changeStsCode =>
+                              this.handleChangeStatistic(i, changeStsCode)
+                            }
                           >
                             {statistic[i].map(stsItem => (
-                              <Select.Option value={stsItem.stsName}>
+                              <Select.Option value={stsItem.stsCode}>
                                 {stsItem.stsName}
                               </Select.Option>
                             ))}
@@ -340,7 +432,12 @@ class DetailEmpty extends Component {
                   Client Information
                 </div>
                 <div className="body" style={{ textAlign: "center" }}>
-                  {currentClient && <p>{currentClient}</p>}
+                  {currentClient && (
+                    <p>
+                      {currentClient.clientFolioNum} -
+                      {currentClient.sClientName}
+                    </p>
+                  )}
                   <Button
                     onClick={this.showClientModal}
                     type="primary"

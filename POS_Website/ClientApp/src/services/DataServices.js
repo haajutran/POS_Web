@@ -47,6 +47,7 @@ export const get = async url => {
 };
 
 export const post = async (url, data) => {
+  // console.log(url, data);
   return await axios
     .post(constant.BASE_URL + url, JSON.stringify(data), {
       headers: getHeader()
@@ -55,7 +56,7 @@ export const post = async (url, data) => {
       return res;
     })
     .catch(error => {
-      return error.response;
+      return error.message;
     });
 };
 

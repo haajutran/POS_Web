@@ -466,15 +466,17 @@ class TableDetail extends Component {
   hold = async () => {
     const { checkNo } = this.state;
     const orderHoldRes = await this.props.getOrderHold(checkNo);
-    console.log(orderHoldRes);
     if (orderHoldRes.status === 200) {
       const oHList = orderHoldRes.data;
-      if (oHList.length > 0) {
+      console.log(oHList);
+      if (oHList && oHList.length > 0) {
         const idHoldMainRes = await this.props.getIDHoldMain();
         if (idHoldMainRes.status === 200) {
           const IDHoldMain = idHoldMainRes.data.getIDHold;
           const CreateTime = idHoldMainRes.data.createTime;
-          // oHList
+          oHList.map(item => {
+            this.props.holdItem(item);
+          });
         }
       }
     }

@@ -131,6 +131,7 @@ export const actionCreators = {
           data.SelectedGuest
         }&SelectedCourse=${data.SelectedCourse}`
       );
+      console.log(res);
       return res.status;
       // if (res.status === 200) {
       //   return res.data[0];
@@ -215,6 +216,7 @@ export const actionCreators = {
       const res = await dataServices.get(
         `api/HoldItem/GetOrderHold?CheckNo=${checkNo}`
       );
+      console.log(checkNo);
       return res;
     } catch (e) {
       console.log(e.message);
@@ -228,6 +230,19 @@ export const actionCreators = {
         `api/HoldItem/GetIDHoldMain?RVCNo=${rvcNo}`
       );
       return res;
+    } catch (e) {
+      console.log(e.message);
+    }
+  },
+
+  holdItem: item => async () => {
+    try {
+      // const rvcNo = sessionStorage.getItem("rvcNo");
+      // const res = await dataServices.get(
+      //   `api/HoldItem/GetIDHoldMain?RVCNo=${rvcNo}`
+      // );
+      // return res;
+      console.log(item);
     } catch (e) {
       console.log(e.message);
     }

@@ -15,7 +15,58 @@ import {
 } from "antd";
 // import moment from "moment";
 // import * as CurrencyFormat from "react-currency-format";
-
+const columns = [
+  {
+    title: "Qty",
+    dataIndex: "qty",
+    key: "name"
+  },
+  {
+    title: "Item Name",
+    dataIndex: "name",
+    key: "age"
+  },
+  {
+    title: "Sub Amount",
+    dataIndex: "sa",
+    key: "address"
+  },
+  {
+    title: "Amount",
+    dataIndex: "a",
+    key: "address"
+  }
+];
+const dataSource = [
+  {
+    key: "1",
+    qty: "1.00",
+    name: 32,
+    sa: "10 Downing Street",
+    a: ""
+  },
+  {
+    key: "2",
+    qty: "1.00",
+    name: 32,
+    sa: "10 Downing Street",
+    a: ""
+  },
+  {
+    key: "1",
+    qty: "1.00",
+    name: 32,
+    sa: "10 Downing Street",
+    a: ""
+  },
+  {
+    key: "2",
+    qty: "1.00",
+    name: 32,
+    sa: "10 Downing Street",
+    a: ""
+  }
+];
 class TableDetail2 extends Component {
   constructor(props) {
     super(props);
@@ -107,7 +158,25 @@ class TableDetail2 extends Component {
               <Button className="hb-btn">Hide Bill</Button>
             </Col>
           </Row>
+          <div className="btnz">
+            <Row>
+              <Col xl={21}>
+                <Button type="primary" icon="appstore" />
+                <Button>#1</Button>
+              </Col>
+              <Col xl={3}>
+                <Button style={{ width: "100%" }}>Check Bill</Button>
+              </Col>
+            </Row>
+          </div>
         </div>
+
+        <div>
+          <Table dataSource={dataSource} columns={columns} />
+        </div>
+        {/* <div className="">
+
+        </div> */}
       </div>
     );
   }

@@ -1,4 +1,5 @@
 import * as dataServices from "../services/DataServices";
+import { ExceptionMap } from "antd/lib/result";
 
 const requestClientListType = "REQUEST_CLIENT_LIST";
 const receiveClientListType = "RECEIVE_CLIENT_LIST";
@@ -87,8 +88,13 @@ export const actionCreators = {
         )}&POSDay=${posDay}&POSMonth=${posMonth}&POSYear=${posYear}`;
         // console.log(table);
         const res = await dataServices.post(
-          "api/TableInfo/AddTableJoin" + params
+          "api/TableInfo/AddTableJoin" + params,
+          ""
         );
+        // console.log(res);
+        if (res.status !== 200) {
+          throw { message: "Error" };
+        }
         console.log(res);
       }
       return 200;
@@ -137,6 +143,55 @@ export const actionCreators = {
     } catch (e) {
       console.log(e.message);
       dispatch({ type: receiveClientListType, clientList: [] });
+    }
+  },
+  okNewTable: data => async () => {
+    // console.log(trnSeq, qTy);
+    try {
+      console.log(data.Adult);
+
+      var url = `api/TableInfo/OKNewTable?Adult=${data.Adult}&Child=${
+        data.Child
+      }&RVCNo=${data.RVCNo}&TableMain=${data.TableMain}&StsCode1=${
+        data.StsCode1
+      }&StsCode2=${data.StsCode2}&StsCode3=${data.StsCode3}&StsCode4=${
+        data.StsCode4
+      }&StsCode5=${data.StsCode5}&StsCode6=${data.StsCode6}&WSID=${
+        data.WSID
+      }&ClientCode=${data.ClientCode}&MealNo=${data.MealNo}&UserLogin=${
+        data.UserLogin
+      }&POSDay=${data.POSDay}&POSMonth=${data.POSMonth}&POSYear=${
+        data.POSYear
+      }&tmpJoinTable=${data.tmpJoinTable}&TableInfo=${
+        data.TableInfo
+      }&RoomCode=${data.RoomCode}&ClientName=${
+        data.ClientName
+      }&ClientInvoiceName=${data.ClientInvoiceName}&ClientAdressInvoice=${
+        data.ClientAdressInvoice
+      }&ClientVAT=${data.ClientVAT}`;
+      url = url.replace(/=&/gi, '=""&');
+      url = url.replace(/ /gi, "");
+      if (url[url.length - 1] === "=") {
+        url += '""';
+      }
+      console.log(url);
+      const res = await dataServices.post(url, "");
+      console.log(res);
+      return res;
+    } catch (e) {
+      console.log(e.message);
+    }
+  },
+  cancelNewTable: tmpJoinTable => async () => {
+    // console.log(trnSeq, qTy);
+    try {
+      const res = await dataServices.post(
+        `api/TableInfo/CancelNewTable?tmpJoinTable=${tmpJoinTable}`,
+        ""
+      );
+      return res;
+    } catch (e) {
+      console.log(e.message);
     }
   }
 };

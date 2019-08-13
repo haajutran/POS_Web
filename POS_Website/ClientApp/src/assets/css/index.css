@@ -557,3 +557,10 @@
 .prev-btn {
   margin-bottom: 1em;
 }
+
+.btnz {
+  margin-top: 5px;
+}
+.btnz .ant-btn {
+  margin-right: 5px;
+}
