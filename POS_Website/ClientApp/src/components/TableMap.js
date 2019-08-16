@@ -68,7 +68,7 @@ class TableMap extends Component {
     // const aaa = this.checkTableHold(item.checkNo)
 
     return (
-      <Link to={`/tableDetail/${item.checkNo}`}>
+      <Link to={`/tableDetail2/${item.checkNo}`}>
         <img
           style={{ width: "100%" }}
           src={"data:image/png;base64, " + this.getImagePickup(item.tableType)}
@@ -148,7 +148,7 @@ class TableMap extends Component {
               </div>
             )}
             {tableTypes && tableAreas.length > 0 ? (
-              <Collapse accordion>
+              <Collapse defaultActiveKey={["0"]} accordion>
                 {tableAreas.map((ta, taIndex) => (
                   <Panel header={ta.tableAreaName} key={taIndex}>
                     <div className="table-map-grid">
@@ -163,38 +163,82 @@ class TableMap extends Component {
                           xxl: 3
                         }}
                         dataSource={ta.tableMaps}
-                        renderItem={(item, index) => (
-                          <List.Item>
-                            {item.checkNo !== "0" ? (
-                              !displayed.includes(item.tableCode) &&
+                        renderItem={
+                          (item, index) =>
+                            !displayed.includes(item.tableCode) ? (
                               (displayed.push(item.tableCode),
-                              <div>{this.renderTablePickup(item)}</div>)
-                            ) : (
-                              <Link to={`/detailempty/${item.tableCode}`}>
-                                <img
-                                  style={{ width: "100%" }}
-                                  src={
-                                    "data:image/png;base64, " +
-                                    this.getImageNull(item)
-                                    // tableTypes.find(
-                                    //   i => i.tableType1 === item.tableType
-                                    // ).imageNull
-                                  }
-                                  alt="img"
-                                />
-
-                                <div className="centered">
-                                  <p className="table-info">
-                                    <span>{item.tableCode}</span>
-                                  </p>
-                                  {item.bkTbl === "1" && (
-                                    <p className="reserved-table">RESERVED</p>
-                                  )}
+                              (
+                                <div>
+                                  <List.Item>
+                                    {item.checkNo !== "0" ? (
+                                      <div>{this.renderTablePickup(item)}</div>
+                                    ) : (
+                                      <Link
+                                        to={`/detailempty/${item.tableCode}`}
+                                      >
+                                        {console.log(ta.tableMaps)}
+                                        <img
+                                          style={{ width: "100%" }}
+                                          src={
+                                            "data:image/png;base64, " +
+                                            this.getImageNull(item)
+                                            // tableTypes.find(
+                                            //   i => i.tableType1 === item.tableType
+                                            // ).imageNull
+                                          }
+                                          alt="img"
+                                        />
+                                        <div className="centered">
+                                          <p className="table-info">
+                                            <span>{item.tableCode}</span>
+                                          </p>
+                                          {item.bkTbl === "1" && (
+                                            <p className="reserved-table">
+                                              RESERVED
+                                            </p>
+                                          )}
+                                        </div>
+                                      </Link>
+                                    )}
+                                  </List.Item>
                                 </div>
-                              </Link>
-                            )}
-                          </List.Item>
-                        )}
+                              ))
+                            ) : (
+                              <div />
+                            )
+
+                          // <List.Item>
+                          //   {item.checkNo !== "0" ? (
+                          //     !displayed.includes(item.tableCode) &&
+                          //     (displayed.push(item.tableCode) && (
+                          //       <div>{this.renderTablePickup(item)}</div>
+                          //     ))
+                          //   ) : (
+                          //     <Link to={`/detailempty/${item.tableCode}`}>
+                          //       {console.log(ta.tableMaps)}
+                          //       <img
+                          //         style={{ width: "100%" }}
+                          //         src={
+                          //           "data:image/png;base64, " +
+                          //           this.getImageNull(item)
+                          //           // tableTypes.find(
+                          //           //   i => i.tableType1 === item.tableType
+                          //           // ).imageNull
+                          //         }
+                          //         alt="img"
+                          //       />
+                          //       <div className="centered">
+                          //         <p className="table-info">
+                          //           <span>{item.tableCode}</span>
+                          //         </p>
+                          //         {item.bkTbl === "1" && (
+                          //           <p className="reserved-table">RESERVED</p>
+                          //         )}
+                          //       </div>
+                          //     </Link>
+                          //   )}
+                          // </List.Item>
+                        }
                       />
                     </div>
                   </Panel>

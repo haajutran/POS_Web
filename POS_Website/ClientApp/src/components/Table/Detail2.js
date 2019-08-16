@@ -174,9 +174,84 @@ class TableDetail2 extends Component {
         <div>
           <Table dataSource={dataSource} columns={columns} />
         </div>
-        {/* <div className="">
-
-        </div> */}
+        <div className="dt2-actions">
+          <div className="btn-sp">
+            <Button className="sp-btn">
+              <Icon type="bell" />
+              Recall Order
+            </Button>
+            <Button className="btn-d">
+              <p>Add/Rmv</p>
+              <p>Tax/Svr</p>
+            </Button>
+            <Button className="btn-d">Order Message</Button>
+            <Button className="btn-d" icon="printer">
+              Print View
+            </Button>
+          </div>
+          <div className="btn-sp">
+            <Button className="btn-d" icon="rocket">
+              Send Order
+            </Button>
+            <Button className="btn-d" icon="retweet">
+              <span>Change Quantity</span>
+            </Button>
+            <Button className="btn-d">Request</Button>
+            <Button className="btn-d">Post Quickly</Button>
+            <Button className="btn-d" icon="printer">
+              Print
+            </Button>
+          </div>
+          <div style={{ flexGrow: 8 }}>ádasd</div>
+          <div className="btn-sp">
+            <Button className="btn-d" icon="tag">
+              Item Discount
+            </Button>
+            <Button className="btn-d">
+              <span>Apply Voucher</span>
+            </Button>
+            <Button className="btn-d">Auto Discount</Button>
+            <Button className="btn-d">Client Discount</Button>
+            <Button className="btn-d">Order Info</Button>
+          </div>
+          <div className="btn-sp">
+            <Button className="btn-d" icon="close">
+              Void
+            </Button>
+            <Button className="sp-btn">
+              <Icon type="dollar" />
+              Pay Cash
+            </Button>
+            <Button className="btn-d" icon="user">
+              Select Client
+            </Button>
+            <Button className="btn-d">Merge</Button>
+          </div>
+          <div className="btn-sp">
+            <Button className="btn-d" icon="close-circle">
+              Cancel Bill
+            </Button>
+            <Button className="sp-btn">
+              <Icon type="bell" />
+              Other Pay
+            </Button>
+            <Button className="btn-d" icon="user-delete">
+              Cancel Client
+            </Button>
+            <Button className="btn-d">Slipt Bill</Button>
+          </div>
+          <div className="btn-sp">
+            <Button className="btn-d" icon="plus-square">
+              Sum Bill
+            </Button>
+            <Button className="btn-d">
+              <span>Item Voucher</span>
+            </Button>
+            <Button className="btn-d">Discount</Button>
+            <Button className="btn-d">Redeem Point</Button>
+            <Button className="btn-d">Share Table</Button>
+          </div>
+        </div>
       </div>
     );
   }

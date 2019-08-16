@@ -564,3 +564,41 @@
 .btnz .ant-btn {
   margin-right: 5px;
 }
+
+.sp-btn {
+  height: 100px;
+  white-space: break-spaces;
+  width: 100%;
+}
+.sp-btn i {
+  width: 100%;
+  font-size: 30px;
+}
+.dt2-actions {
+  display: flex;
+}
+.dt2-actions .btn-sp {
+  width: 120px;
+  margin-right: 4px;
+}
+.dt2-actions button {
+  margin-bottom: 4px;
+  width: 100%;
+}
+.dt2-actions button p {
+  margin: 0;
+}
+.dt2-actions i {
+  width: 100%;
+}
+
+.dt2-actions .btn-d {
+  padding: 0;
+  height: 48px;
+  margin-bottom: 4px;
+  white-space: normal;
+  word-wrap: break-word;
+}
+.dt2-actions .btn-d span {
+  margin-left: 0;
+}

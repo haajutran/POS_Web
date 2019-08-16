@@ -148,36 +148,48 @@ export const actionCreators = {
   okNewTable: data => async () => {
     // console.log(trnSeq, qTy);
     try {
-      console.log(data.Adult);
+      console.log(data);
+      var params = "";
+      Object.entries(data).map(([key, value]) => {
+        // console.log(key, value);
+        if (value) {
+          console.log(key);
+          if (key.includes("Sts")) {
+            params += key + "=" + value.stsCode + "&";
+          } else {
+            params += key + "=" + value + "&";
+          }
+        }
+      });
 
-      var url = `api/TableInfo/OKNewTable?Adult=${data.Adult}&Child=${
-        data.Child
-      }&RVCNo=${data.RVCNo}&TableMain=${data.TableMain}&StsCode1=${
-        data.StsCode1
-      }&StsCode2=${data.StsCode2}&StsCode3=${data.StsCode3}&StsCode4=${
-        data.StsCode4
-      }&StsCode5=${data.StsCode5}&StsCode6=${data.StsCode6}&WSID=${
-        data.WSID
-      }&ClientCode=${data.ClientCode}&MealNo=${data.MealNo}&UserLogin=${
-        data.UserLogin
-      }&POSDay=${data.POSDay}&POSMonth=${data.POSMonth}&POSYear=${
-        data.POSYear
-      }&tmpJoinTable=${data.tmpJoinTable}&TableInfo=${
-        data.TableInfo
-      }&RoomCode=${data.RoomCode}&ClientName=${
-        data.ClientName
-      }&ClientInvoiceName=${data.ClientInvoiceName}&ClientAdressInvoice=${
-        data.ClientAdressInvoice
-      }&ClientVAT=${data.ClientVAT}`;
-      url = url.replace(/=&/gi, '=""&');
-      url = url.replace(/ /gi, "");
-      if (url[url.length - 1] === "=") {
-        url += '""';
-      }
+      var url = "api/TableInfo/OKNewTable?" + params;
+      // var url = `api/TableInfo/OKNewTable?Adult=${data.Adult}&Child=${
+      //   data.Child
+      // }&RVCNo=${data.RVCNo}&TableMain=${data.TableMain}&StsCode1=${
+      //   data.StsCode1
+      // }&StsCode2=${data.StsCode2}&StsCode3=${data.StsCode3}&StsCode4=${
+      //   data.StsCode4
+      // }&StsCode5=${data.StsCode5}&StsCode6=${data.StsCode6}&WSID=${
+      //   data.WSID
+      // }&ClientCode=${data.ClientCode}&MealNo=${data.MealNo}&UserLogin=${
+      //   data.UserLogin
+      // }&POSDay=${data.POSDay}&POSMonth=${data.POSMonth}&POSYear=${
+      //   data.POSYear
+      // }&tmpJoinTable=${data.tmpJoinTable}&TableInfo=${
+      //   data.TableInfo
+      // }&RoomCode=${data.RoomCode}&ClientName=${
+      //   data.ClientName
+      // }&ClientInvoiceName=${data.ClientInvoiceName}&ClientAdressInvoice=${
+      //   data.ClientAdressInvoice
+      // }&ClientVAT=${data.ClientVAT}`;
+      // url = url.replace(/=&/gi, '=""&');
+      // url = url.replace(/ /gi, "");
+
       console.log(url);
       const res = await dataServices.post(url, "");
       console.log(res);
       return res;
+      // return 200;
     } catch (e) {
       console.log(e.message);
     }

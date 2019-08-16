@@ -166,7 +166,6 @@ class DetailEmpty extends Component {
   };
 
   handleOKNewTable = async () => {
-    console.log("sdasd");
     const formValues = this.props.form.getFieldsValue();
     if (
       (!formValues.adult || formValues.adult.length < 1) &&
@@ -183,7 +182,6 @@ class DetailEmpty extends Component {
       activeTime,
       tmpIDTableJoin
     } = this.state;
-    // console.log(statistic, statisticSelected);
     const userLogin = sessionStorage.getItem("posUser");
     const posDate = new Date(sessionStorage.getItem("posDate"));
     const data = {
@@ -191,35 +189,33 @@ class DetailEmpty extends Component {
       Child: formValues.child ? formValues.child : "",
       RVCNo: sessionStorage.getItem("rvcNo"),
       TableMain: tableCode,
-      StsCode1: statisticSelected[0] ? statisticSelected[0].stsCode : "",
-      StsCode2: statisticSelected[1] ? statisticSelected[1].stsCode : "",
-      StsCode3: statisticSelected[2] ? statisticSelected[2].stsCode : "",
-      StsCode4: statisticSelected[3] ? statisticSelected[3].stsCode : "",
-      StsCode5: statisticSelected[4] ? statisticSelected[4].stsCode : "",
-      StsCode6: statisticSelected[5] ? statisticSelected[5].stsCode : "",
+      StsCode1: statisticSelected[0],
+      StsCode2: statisticSelected[1],
+      StsCode3: statisticSelected[2],
+      StsCode4: statisticSelected[3],
+      StsCode5: statisticSelected[4],
+      StsCode6: statisticSelected[5],
       WSID: "Hau",
-      ClientCode: currentClient.clientFolioNum
-        ? currentClient.clientFolioNum
-        : "",
+      ClientCode: currentClient.clientFolioNum,
       MealNo: activeTime,
-      UserLogin: userLogin,
-      POSDay: posDate.getDate(),
-      POSMonth: posDate.getMonth() + 1,
-      POSYear: posDate.getFullYear(),
+      // UserLogin: userLogin,
+      // POSDay: posDate.getDate(),
+      // POSMonth: posDate.getMonth() + 1,
+      // POSYear: posDate.getFullYear(),
       tmpJoinTable: tmpIDTableJoin,
-      TableInfo: formValues.tableInfo ? formValues.tableInfo : "",
-      RoomCode: formValues.room ? formValues.room : "",
-      ClientName: currentClient.sClientName ? currentClient.sClientName : "",
-      ClientInvoiceName: currentClient.clientInvoiceName
-        ? currentClient.clientInvoiceName
-        : "",
-      ClientAdressInvoice: currentClient.clientAdressInvoice
-        ? currentClient.clientAdressInvoice
-        : "",
-      ClientVAT: currentClient.clientVAT ? currentClient.clientVAT : ""
+      TableInfo: formValues.tableInfo,
+      RoomCode: formValues.room,
+      ClientName: currentClient.sClientName,
+      ClientInvoiceName: currentClient.clientInvoiceName,
+      ClientAdressInvoice: currentClient.clientAdressInvoice,
+      ClientVAT: currentClient.clientVAT
     };
     // console.log(data);
     const res = await this.props.okNewTable(data);
+    if (res.status === 200) {
+      console.log(res);
+      this.props.history.push(`/tableDetail/${res.data[0].checkNo}`);
+    }
   };
 
   handleInputRoom = e => {
