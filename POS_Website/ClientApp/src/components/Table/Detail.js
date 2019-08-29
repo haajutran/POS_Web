@@ -13,11 +13,16 @@ import {
   Form,
   Breadcrumb,
   notification,
+  message,
+  Select,
   Modal
 } from "antd";
 import moment from "moment";
 import * as CurrencyFormat from "react-currency-format";
 import BackspaceIcon from "../../assets/images/backspace-icon.png";
+import * as TimeServices from "../../services/TimeServices";
+
+const { Option } = Select;
 
 class TableDetail extends Component {
   constructor(props) {
@@ -37,7 +42,11 @@ class TableDetail extends Component {
       otherRequest: "",
       classRequests: [],
       itemRequests: [],
-      isChoosingRequest: false
+      isChoosingRequest: false,
+      voidModalVisible: false,
+      voidUnsendModalVisible: false,
+      selectedVoid: "",
+      voidQty: ""
     };
   }
 
@@ -45,6 +54,8 @@ class TableDetail extends Component {
     // this.props.requestNotiCashier();
     await this.props.requestMenus(0);
     await this.props.requestCourse();
+    await this.props.requestVoidReason();
+
     const params = this.props.match.params;
 
     if (params) {
@@ -73,17 +84,6 @@ class TableDetail extends Component {
       });
     }
   }
-
-  getHoursPassed = openTime => {
-    const date1 = moment(new Date(openTime));
-    const date2 = moment(new Date());
-    var diffInHours = date2.diff(date1, "hours");
-    var minutes = new Date(openTime).getMinutes() - new Date().getMinutes();
-    // var diffInMinutes = date2.diff(date1, "minutes");
-    // const res = diffInHours + " : " + minutes;
-    const res = diffInHours;
-    return res;
-  };
 
   handleClickMenu = async (menuNo, menuName, hasSubMenu) => {
     // console.log(menuNo, menuName);
@@ -185,6 +185,71 @@ class TableDetail extends Component {
     }
   };
 
+  handleVoid = () => {
+    const { selectedRow } = this.state;
+    if (selectedRow === "") {
+      notification.open({
+        message: "Please select item first!",
+        className: "alert-noti"
+      });
+    } else if (selectedRow.pToOrder === 1) {
+      this.showVoidModal();
+    } else if (selectedRow.pToOrder === 0) {
+      this.showVoidUnsendModal();
+    }
+  };
+
+  showVoidModal = () => {
+    this.setState({
+      voidModalVisible: true
+    });
+  };
+
+  cancelVoidModal = () => {
+    this.setState({
+      voidModalVisible: false,
+      selectedVoid: "",
+      voidQty: ""
+    });
+  };
+
+  showVoidUnsendModal = () => {
+    this.setState({
+      voidUnsendModalVisible: true
+    });
+  };
+
+  cancelVoidUnsendModal = () => {
+    this.setState({
+      voidUnsendModalVisible: false,
+      voidQty: ""
+    });
+  };
+
+  saveVoid = async () => {
+    const { checkNo, selectedRow, voidQty, selectedVoid } = this.state;
+    const data = {
+      CheckNo: checkNo,
+      TrnSeq: selectedRow.trnSeq,
+      VoidQty: voidQty ? voidQty : "",
+      VoidReason: selectedVoid ? selectedVoid : ""
+    };
+    console.log(data);
+    const res = await this.props.voidItem(data);
+    if (res.status === 200) {
+      message.success("Void Success");
+      this.requestBillDetail();
+      this.cancelVoidModal();
+      this.cancelVoidUnsendModal();
+    }
+  };
+
+  handleChangeVoid = value => {
+    this.setState({
+      selectedVoid: value.key
+    });
+  };
+
   handleCancelUpdateQuantity = async e => {
     await this.setState({
       cQMVisible: false
@@ -192,7 +257,7 @@ class TableDetail extends Component {
   };
 
   handleUpdateQuantity = async () => {
-    const { selectedRow } = this.state;
+    const { selectedRow, checkNo } = this.state;
     if (selectedRow.qTy === "0") {
       notification.open({
         message: "Quantity cannot be lower than 1!",
@@ -315,10 +380,8 @@ class TableDetail extends Component {
   clickQuantity = quantity => {
     var plus = "";
     if (this.state.quantity === "0") {
-      console.log("object");
       plus = quantity;
     } else {
-      console.log(">1");
       plus = this.state.quantity + "" + quantity;
     }
     this.setState({
@@ -328,7 +391,7 @@ class TableDetail extends Component {
 
   clickRemoveQuantity = () => {
     const { quantity } = this.state;
-    console.log(quantity.length);
+    // console.log(voidQty.length);
 
     if (quantity.length === 1) {
       this.setState({
@@ -342,6 +405,40 @@ class TableDetail extends Component {
     }
   };
 
+  clickVoidQuantity = quantity => {
+    var plus = "";
+    if (this.state.voidQty === "0") {
+      plus = quantity;
+    } else {
+      plus = this.state.voidQty + "" + quantity;
+    }
+    const itemQty = this.state.selectedRow.qTy;
+    if (parseInt(plus) > parseInt(itemQty)) {
+      message.warn("Void Quantity cannot be higher than Item Quantity!");
+      return;
+    }
+    this.setState({
+      voidQty: plus
+    });
+  };
+
+  clickRemoveVoidQuantity = () => {
+    const { voidQty } = this.state;
+    // console.log(voidQty.length);
+
+    if (voidQty.length === 1) {
+      this.setState({
+        voidQty: "0"
+      });
+    } else if (voidQty.length > 1) {
+      const minusQuantity = voidQty.substring(0, voidQty.length - 1);
+      this.setState({
+        voidQty: minusQuantity
+      });
+    }
+  };
+
+  // #region Change Item Quantity
   changeQuantity = quantity => {
     var plus = "";
     var { selectedRow } = this.state;
@@ -374,6 +471,44 @@ class TableDetail extends Component {
       });
     }
   };
+
+  // #endregion
+
+  // #region Change Void Quantity
+  changeVoidQuantity = quantity => {
+    var plus = "";
+    var { voidQty } = this.state;
+    const qTy = voidQty.toString();
+    if (qTy === "0") {
+      plus = quantity;
+    } else {
+      plus = qTy + "" + quantity;
+    }
+    voidQty = plus;
+    this.setState({
+      voidQty
+    });
+  };
+
+  clickRemoveVoidQuantity = () => {
+    var { voidQty } = this.state;
+    const quantity = voidQty.toString();
+
+    if (quantity.length === 1) {
+      voidQty = "0";
+      this.setState({
+        voidQty
+      });
+    } else if (quantity.length > 1) {
+      const minusQuantity = quantity.substring(0, quantity.length - 1);
+      voidQty = minusQuantity;
+      this.setState({
+        voidQty
+      });
+    }
+  };
+
+  // #endregion
 
   sendOrder = async () => {
     const { checkNo } = this.state;
@@ -511,9 +646,16 @@ class TableDetail extends Component {
       isChoosingRequest,
       isOtherRequest
     } = this.state;
-    const { menus, mainMenus, course, billDetail, requests } = this.props;
+    const {
+      menus,
+      mainMenus,
+      course,
+      billDetail,
+      requests,
+      voidReason
+    } = this.props;
     // console.log(course);
-    console.log(requests);
+    // console.log(billDetail);
     return (
       <div className="detail-page">
         {tableDetail && (
@@ -532,13 +674,89 @@ class TableDetail extends Component {
                         </Col>
                         <Col span={6}>
                           <span>
-                            {this.getHoursPassed(tableDetail.openTime)}
+                            {TimeServices.getHoursPassed(tableDetail.openTime)}
                           </span>
                         </Col>
                         <Col span={2}>
                           <span className="info-btn">
                             <Icon type="info" />
                           </span>
+                        </Col>
+                      </Row>
+                    </div>
+                  </Col>
+                  <Col>
+                    <div class="oib">
+                      <Row gutter={16}>
+                        <Col xl={14} className="seperate">
+                          <Row>
+                            <Col span={10}>
+                              <b className="title">Open Bill</b>
+                            </Col>
+                            <Col span={14}>
+                              <span className="value">
+                                {moment(new Date(tableDetail.openTime)).format(
+                                  "DD/MM/YYYY HH:MM"
+                                )}
+                              </span>
+                            </Col>
+                          </Row>
+                        </Col>
+                        <Col xl={10} className="seperate">
+                          <Row>
+                            <Col span={10}>
+                              <b className="title">Table</b>
+                            </Col>
+                            <Col span={14}>
+                              <span className="value">
+                                {tableDetail.tableNo}
+                              </span>
+                            </Col>
+                          </Row>
+                        </Col>
+                        <Col xl={14} className="seperate">
+                          <Row>
+                            <Col span={10}>
+                              <b className="title">Open By</b>
+                            </Col>
+                            <Col span={14}>
+                              <span className="value">
+                                {tableDetail.openBy}
+                              </span>
+                            </Col>
+                          </Row>
+                        </Col>
+                        <Col xl={10} className="seperate">
+                          <Row>
+                            <Col span={10}>
+                              <b className="title">Adult</b>
+                            </Col>
+                            <Col span={14}>
+                              <span className="value">{tableDetail.adult}</span>
+                            </Col>
+                          </Row>
+                        </Col>
+                        <Col xl={14} className="seperate">
+                          <Row>
+                            <Col span={10}>
+                              <b className="title">Client</b>
+                            </Col>
+                            <Col span={14}>
+                              <span className="value">
+                                {tableDetail.clientName}
+                              </span>
+                            </Col>
+                          </Row>
+                        </Col>
+                        <Col xl={10} className="seperate">
+                          <Row>
+                            <Col span={10}>
+                              <b className="title">Child</b>
+                            </Col>
+                            <Col span={14}>
+                              <span className="value">{tableDetail.child}</span>
+                            </Col>
+                          </Row>
                         </Col>
                       </Row>
                     </div>
@@ -605,21 +823,7 @@ class TableDetail extends Component {
                     </div>
                   </Col>
                   <Col>
-                    <div className="ifz-3">
-                      <Button
-                        type="primary"
-                        icon="plus-square"
-                        size="large"
-                        onClick={() => this.sum()}
-                      />
-                      <Button type="primary" icon="scissor" size="large" />
-                      <Button
-                        type="primary"
-                        icon="pause-circle"
-                        size="large"
-                        onClick={() => this.hold()}
-                      />
-                    </div>
+                    <div className="ifz-3"></div>
                   </Col>
                   <div className={`bz ${viewSum === 1 ? `close` : ``}`}>
                     <Col style={{ marginTop: "1em" }}>
@@ -747,56 +951,6 @@ class TableDetail extends Component {
                         </Form>
                       </div>
                     </Col>
-                    <Col>
-                      <div className="ab">
-                        <Row>
-                          <Col xl={16}>
-                            <Button icon="close" ghost>
-                              Cancel Bill
-                            </Button>
-                            <Button icon="search" ghost>
-                              Ord Quickly
-                            </Button>
-                            <Button icon="menu" ghost>
-                              Top Menu
-                            </Button>
-                            <Button
-                              icon="deployment-unit"
-                              ghost
-                              onClick={() => this.handleAddRequest()}
-                            >
-                              Request
-                            </Button>
-                            <Button icon="stop" ghost>
-                              Void
-                            </Button>
-                            <Button icon="appstore" ghost>
-                              Add On
-                            </Button>
-                            <Button
-                              icon="swap"
-                              ghost
-                              onClick={() => this.handleChangeQuantity()}
-                            >
-                              Change Qty
-                            </Button>
-                            <Button icon="bars" ghost>
-                              Other Options
-                            </Button>
-                          </Col>
-                          <Col xl={6}>
-                            <Button
-                              icon="select"
-                              ghost
-                              style={{ height: 130 }}
-                              onClick={() => this.sendOrder()}
-                            >
-                              Send Order
-                            </Button>
-                          </Col>
-                        </Row>
-                      </div>
-                    </Col>
                   </div>
                 </Row>
               </div>
@@ -805,7 +959,7 @@ class TableDetail extends Component {
               <div className="order-zone">
                 <Row>
                   <Col>
-                    <div className="oib">
+                    {/* <div className="oib">
                       <Row gutter={16}>
                         <Col xl={20}>
                           <Row gutter={16}>
@@ -893,57 +1047,58 @@ class TableDetail extends Component {
                           />
                         </Col>
                       </Row>
-                    </div>
+                    </div> */}
                   </Col>
                   <Col>
-                    <div className="breadscrumb-menu">
-                      <Breadcrumb>
-                        <Breadcrumb.Item
-                          onClick={() => this.handleClickMenu(0, "", "")}
-                        >
-                          <Icon type="home" />
-                        </Breadcrumb.Item>
-                        {bsMenus.map(bsm => (
-                          <Breadcrumb.Item
-                            onClick={() =>
-                              this.handleClickMenu(bsm.menuNo, "", "")
-                            }
-                          >
-                            {bsm.menuName}
-                          </Breadcrumb.Item>
-                        ))}
-                      </Breadcrumb>
-                    </div>
-
                     <div className="oz">
                       <div className="menus-zone">
-                        {menus.map(menu => (
-                          <div
-                            className={`order-item ${currentMenu ===
-                              menu.menuNo && "active"}`}
-                            onClick={() =>
-                              this.handleClickMenu(
-                                menu.menuNo,
-                                menu.menuName,
-                                menu.hasSubMenu
-                              )
-                            }
-                          >
-                            <Row>
-                              <Col span={10}>
-                                <img
-                                  className="image"
-                                  src={`data:image/png;base64, ${menu.image}`}
-                                />
-                              </Col>
-                              <Col span={14}>
+                        <div className="mz-wrap">
+                          {menus.map(menu => (
+                            <div
+                              className={`order-item-custom ${currentMenu ===
+                                menu.menuNo && "active"}`}
+                              onClick={() =>
+                                this.handleClickMenu(
+                                  menu.menuNo,
+                                  menu.menuName,
+                                  menu.hasSubMenu
+                                )
+                              }
+                            >
+                              <div className="oi-wrap">
+                                <div className="oi-img">
+                                  <img
+                                    className="image"
+                                    src={`data:image/png;base64, ${menu.image}`}
+                                  />
+                                </div>
+
                                 <div className="oi-text">
                                   <p>{menu.menuName}</p>
                                 </div>
-                              </Col>
-                            </Row>
-                          </div>
-                        ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="breadscrumb-menu">
+                        <Breadcrumb>
+                          <Breadcrumb.Item
+                            onClick={() => this.handleClickMenu(0, "", "")}
+                          >
+                            <Icon type="home" />
+                          </Breadcrumb.Item>
+
+                          {bsMenus.map(bsm => (
+                            <Breadcrumb.Item
+                              onClick={() =>
+                                this.handleClickMenu(bsm.menuNo, "", "")
+                              }
+                            >
+                              {bsm.menuName}
+                            </Breadcrumb.Item>
+                          ))}
+                        </Breadcrumb>
                       </div>
                       <div className="item-zone">
                         {mainMenus && mainMenus.length > 0 && (
@@ -1071,6 +1226,202 @@ class TableDetail extends Component {
             </Col>
           </Row>
         )}
+        <div className="table-actions">
+          <div className="ab">
+            <div className={`ab-item`} onClick={() => this.sum()}>
+              <div className="ab-wrap">
+                <div className="ab-icon">
+                  <Icon type="plus-square" />
+                </div>
+
+                <div className="ab-text">
+                  <p>Sum</p>
+                </div>
+              </div>
+            </div>
+            <div
+              className={`ab-item`}
+              // onClick={() => this.handleChangeQuantity()}
+            >
+              <div className="ab-wrap">
+                <div className="ab-icon">
+                  <Icon type="scissor" />
+                </div>
+
+                <div className="ab-text">
+                  <p>...</p>
+                </div>
+              </div>
+            </div>
+            <div className={`ab-item sr`} onClick={() => this.hold()}>
+              <div className="ab-wrap">
+                <div className="ab-icon">
+                  <Icon type="pause-circle" />
+                </div>
+
+                <div className="ab-text">
+                  <p>Hold</p>
+                </div>
+              </div>
+            </div>
+
+            <div className={`ab-item`}>
+              <div className="ab-wrap">
+                <div className="ab-icon">
+                  <Icon type="close" />
+                </div>
+
+                <div className="ab-text">
+                  <p>Cancel Bill</p>
+                </div>
+              </div>
+            </div>
+            <div className={`ab-item`}>
+              <div className="ab-wrap">
+                <div className="ab-icon">
+                  <Icon type="search" />
+                </div>
+
+                <div className="ab-text">
+                  <p>Ord Quickly</p>
+                </div>
+              </div>
+            </div>
+            <div className={`ab-item`}>
+              <div className="ab-wrap">
+                <div className="ab-icon">
+                  <Icon type="menu" />
+                </div>
+
+                <div className="ab-text">
+                  <p>Top Menu</p>
+                </div>
+              </div>
+            </div>
+            <div className={`ab-item`} onClick={() => this.handleAddRequest()}>
+              <div className="ab-wrap">
+                <div className="ab-icon">
+                  <Icon type="deployment-unit" />
+                </div>
+
+                <div className="ab-text">
+                  <p>Request</p>
+                </div>
+              </div>
+            </div>
+            <div className={`ab-item`} onClick={() => this.handleVoid()}>
+              <div className="ab-wrap">
+                <div className="ab-icon">
+                  <Icon type="stop" />
+                </div>
+
+                <div className="ab-text">
+                  <p>Void</p>
+                </div>
+              </div>
+            </div>
+            <div className={`ab-item`}>
+              <div className="ab-wrap">
+                <div className="ab-icon">
+                  <Icon type="appstore" />
+                </div>
+
+                <div className="ab-text">
+                  <p>Add On</p>
+                </div>
+              </div>
+            </div>
+            <div
+              className={`ab-item`}
+              onClick={() => this.handleChangeQuantity()}
+            >
+              <div className="ab-wrap">
+                <div className="ab-icon">
+                  <Icon type="swap" />
+                </div>
+
+                <div className="ab-text">
+                  <p>Change Qty</p>
+                </div>
+              </div>
+            </div>
+            <div className={`ab-item`}>
+              <div className="ab-wrap">
+                <div className="ab-icon">
+                  <Icon type="bars" />
+                </div>
+
+                <div
+                  className="ab-text"
+                  // onClick={}
+                >
+                  <p>Other Options</p>
+                </div>
+              </div>
+            </div>
+            <div
+              className={`ab-item sl`}
+              // onClick={() => this.handleChangeQuantity()}
+            >
+              <div className="ab-wrap">
+                <div className="ab-icon">
+                  <Icon type="check" />
+                </div>
+
+                <div className="ab-text">
+                  <p>Hide Bill</p>
+                </div>
+              </div>
+            </div>
+
+            {/* <Row>
+                        <Col xl={16}>
+                          <Button icon="close" ghost>
+                            Cancel Bill
+                          </Button>
+                          <Button icon="search" ghost>
+                            Ord Quickly
+                          </Button>
+                          <Button icon="menu" ghost>
+                            Top Menu
+                          </Button>
+                          <Button
+                            icon="deployment-unit"
+                            ghost
+                            onClick={() => this.handleAddRequest()}
+                          >
+                            Request
+                          </Button>
+                          <Button icon="stop" ghost>
+                            Void
+                          </Button>
+                          <Button icon="appstore" ghost>
+                            Add On
+                          </Button>
+                          <Button
+                            icon="swap"
+                            ghost
+                            onClick={() => this.handleChangeQuantity()}
+                          >
+                            Change Qty
+                          </Button>
+                          <Button icon="bars" ghost>
+                            Other Options
+                          </Button>
+                        </Col>
+                        <Col xl={6}>
+                          <Button
+                            icon="select"
+                            ghost
+                            style={{ height: 130 }}
+                            onClick={() => this.sendOrder()}
+                          >
+                            Send Order
+                          </Button>
+                        </Col>
+                      </Row> */}
+          </div>
+        </div>
         <Modal
           title="Change Quantity"
           visible={this.state.cQMVisible}
@@ -1270,6 +1621,217 @@ class TableDetail extends Component {
               </div>
             )}
           </div>
+        </Modal>
+
+        <Modal
+          title={`Void ${selectedRow.trnDesc}`}
+          visible={this.state.voidModalVisible}
+          onOk={this.saveVoid}
+          onCancel={() => this.cancelVoidModal()}
+        >
+          {parseInt(selectedRow.qTy) > 1 && (
+            <div className="quantity-zone">
+              <Input readOnly className="input" value={this.state.voidQty} />
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("1")}
+              >
+                1
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("2")}
+              >
+                2
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("3")}
+              >
+                3
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("4")}
+              >
+                4
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("5")}
+              >
+                5
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("6")}
+              >
+                6
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("7")}
+              >
+                7
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("8")}
+              >
+                8
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("9")}
+              >
+                9
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("0")}
+              >
+                0
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickRemoveVoidQuantity()}
+              >
+                <img
+                  src={BackspaceIcon}
+                  style={{
+                    width: 25,
+                    paddingRight: 2,
+                    paddingBottom: 2
+                  }}
+                />
+              </Button>
+            </div>
+          )}
+          <Select
+            placeholder="Select Void"
+            style={{ width: "100%" }}
+            onChange={this.handleChangeVoid}
+            labelInValue
+          >
+            {voidReason.map(item => (
+              <Option value={item.id}>{item.vReason}</Option>
+            ))}
+            {/* <Option value="jack">Jack</Option>
+            <Option value="lucy">Lucy</Option>
+            <Option value="disabled" disabled>
+              Disabled
+            </Option>
+            <Option value="Yiminghe">yiminghe</Option> */}
+          </Select>
+        </Modal>
+
+        <Modal
+          title={`Void ${selectedRow.trnDesc}`}
+          visible={this.state.voidUnsendModalVisible}
+          onOk={this.saveVoid}
+          onCancel={() => this.cancelVoidUnsendModal()}
+        >
+          Are you sure?
+          {parseInt(selectedRow.qTy) > 1 && (
+            <div className="quantity-zone">
+              <Input readOnly className="input" value={this.state.voidQty} />
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("1")}
+              >
+                1
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("2")}
+              >
+                2
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("3")}
+              >
+                3
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("4")}
+              >
+                4
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("5")}
+              >
+                5
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("6")}
+              >
+                6
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("7")}
+              >
+                7
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("8")}
+              >
+                8
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("9")}
+              >
+                9
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickVoidQuantity("0")}
+              >
+                0
+              </Button>
+              <Button
+                shape="circle"
+                size={"large"}
+                onClick={() => this.clickRemoveVoidQuantity()}
+              >
+                <img
+                  src={BackspaceIcon}
+                  style={{
+                    width: 25,
+                    paddingRight: 2,
+                    paddingBottom: 2
+                  }}
+                />
+              </Button>
+            </div>
+          )}
         </Modal>
       </div>
     );

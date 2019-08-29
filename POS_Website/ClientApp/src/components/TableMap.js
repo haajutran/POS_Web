@@ -160,7 +160,7 @@ class TableMap extends Component {
                           md: 4,
                           lg: 4,
                           xl: 6,
-                          xxl: 3
+                          xxl: 8
                         }}
                         dataSource={ta.tableMaps}
                         renderItem={

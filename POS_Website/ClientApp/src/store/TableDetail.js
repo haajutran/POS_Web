@@ -9,6 +9,9 @@ const receiveBillDetailType = "RECEIVE_BILL_DETAIL";
 const requestCourseType = "REQUEST_COURSE";
 const receiveCourseType = "RECEIVE_COURSE";
 
+const requestVoidReasonType = "REQUEST_VOID_REASON";
+const receiveVoidReasonType = "RECEIVE_VOID_REASON";
+
 const requestRequestType = "REQUEST_REQUEST";
 const receiveRequestType = "RECEIVE_REQUEST";
 
@@ -18,7 +21,8 @@ const initialState = {
   mainMenus: [],
   course: [],
   billDetail: [],
-  requests: []
+  requests: [],
+  voidReason: []
 };
 
 export const actionCreators = {
@@ -93,6 +97,20 @@ export const actionCreators = {
     }
   },
 
+  requestVoidReason: () => async dispatch => {
+    try {
+      dispatch({ type: requestVoidReasonType });
+      const res = await dataServices.post(`api/VoidItem/VoidReason`, "");
+      console.log(res);
+      if (res.status === 200) {
+        dispatch({ type: receiveVoidReasonType, voidReason: res.data });
+      }
+    } catch (e) {
+      console.log(e.message);
+      dispatch({ type: receiveVoidReasonType, voidReason: [] });
+    }
+  },
+
   sendOrder: checkNo => async dispatch => {
     try {
       const res = await dataServices.get(
@@ -121,17 +139,16 @@ export const actionCreators = {
   },
   postItemManual: data => async () => {
     try {
-      console.log(data);
-      const res = await dataServices.get(
-        `api/PostItem/PostItemMunual?CheckNo=${data.CheckNo}&ICode=${
-          data.ICode
-        }&isAddOn=${data.isAddOn}&ChangeOrderNo=${
-          data.ChangeOrderNo
-        }&Qty=${parseInt(data.Qty)}&SelectedGuest=${
-          data.SelectedGuest
-        }&SelectedCourse=${data.SelectedCourse}`
-      );
-      console.log(res);
+      const url = `api/PostItem/PostItemMunual?CheckNo=${data.CheckNo}&ICode=${
+        data.ICode
+      }&isAddOn=${data.isAddOn}&ChangeOrderNo=${
+        data.ChangeOrderNo
+      }&Qty=${parseInt(data.Qty)}&SelectedGuest=${
+        data.SelectedGuest
+      }&SelectedCourse=${data.SelectedCourse}`;
+
+      const res = await dataServices.get(`${url}`);
+      // console.log(url);
       return res.status;
       // if (res.status === 200) {
       //   return res.data[0];
@@ -143,10 +160,9 @@ export const actionCreators = {
   updateQuantity: (trnSeq, qTy) => async () => {
     // console.log(trnSeq, qTy);
     try {
-      const res = await dataServices.post(
-        `api/ChangeQty/ChangeQty?TrnSeq=${trnSeq}&NewQty=${qTy}`,
-        ""
-      );
+      const url = `api/ChangeQty/ChangeQuantity?NewQty=${qTy}&TrnSeq=${trnSeq}`;
+      const res = await dataServices.get(`${url}`);
+
       return res.status;
     } catch (e) {
       console.log(e.message);
@@ -192,17 +208,9 @@ export const actionCreators = {
   },
   addRequest: data => async () => {
     try {
-      const url = `api/AddRequest/AddRequest?ICode=${data.ICode}&CGCode=${
-        data.CGCode
-      }&CGName=${data.CGName}&Orther=${data.Orther}&IClass=${
-        data.IClass
-      }&Item=${data.Item}`;
+      const url = `api/AddRequest/AddRequest?ICode=${data.ICode}&CGCode=${data.CGCode}&CGName=${data.CGName}&Orther=${data.Orther}&IClass=${data.IClass}&Item=${data.Item}`;
       const res = await dataServices.post(
-        `api/AddRequest/AddRequest?ICode=${data.ICode}&CGCode=${
-          data.CGCode
-        }&CGName=${data.CGName}&Orther=${data.Orther}&IClass=${
-          data.IClass
-        }&Item=${data.Item}`,
+        `api/AddRequest/AddRequest?ICode=${data.ICode}&CGCode=${data.CGCode}&CGName=${data.CGName}&Orther=${data.Orther}&IClass=${data.IClass}&Item=${data.Item}`,
         ""
       );
       console.log(url);
@@ -246,6 +254,21 @@ export const actionCreators = {
     } catch (e) {
       console.log(e.message);
     }
+  },
+
+  voidItem: data => async () => {
+    var url = `api/VoidItem/VoidItem?`;
+    for (let [key, value] of Object.entries(data)) {
+      // console.log(`${key}: ${value.length}`);
+      if (value.length > 0) {
+        url += key + "=" + value + "&";
+      }
+    }
+    const res = await dataServices.post(url, "");
+
+    console.log(url);
+    console.log(res);
+    return res;
   }
 };
 
@@ -308,6 +331,21 @@ export const reducer = (state, action) => {
     return {
       ...state,
       requests: action.requests,
+      isLoading: false
+    };
+  }
+
+  if (action.type === requestVoidReasonType) {
+    return {
+      ...state,
+      isLoading: true
+    };
+  }
+
+  if (action.type === receiveVoidReasonType) {
+    return {
+      ...state,
+      voidReason: action.voidReason,
       isLoading: false
     };
   }

@@ -55,6 +55,11 @@ class MainLayout extends React.Component {
     });
   };
 
+  logout = () => {
+    sessionStorage.clear();
+    window.location.replace("/login");
+  };
+
   render() {
     const { collapsed, time } = this.state;
     const posUser = sessionStorage.getItem("posUser");
@@ -77,9 +82,9 @@ class MainLayout extends React.Component {
                     <span>Test</span>
                   </Link>
                 </Menu.Item>
-                <Menu.Item key="3">
-                  <Icon type="upload" />
-                  <span>nav 3</span>
+                <Menu.Item key="3" onClick={() => this.logout()}>
+                  <Icon type="logout" />
+                  <span>Logout</span>
                 </Menu.Item>
               </Menu>
             </Sider>
