@@ -128,7 +128,7 @@ class TableMap extends Component {
                 <div>
                   <Row gutter={16}>
                     {RVCQuickInfomation.map(item => (
-                      <Col lg={6} xl={4}>
+                      <Col sm={12} lg={6} xl={4}>
                         <Card
                           style={{
                             background:

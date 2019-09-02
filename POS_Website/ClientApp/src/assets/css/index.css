@@ -16,16 +16,28 @@
   margin: 16px;
 }
 
+.ant-collapse-content-box {
+  min-width: 200px;
+  overflow: auto;
+}
+
 .ant-layout {
   min-height: 100vh;
 }
 .ant-menu.ant-menu-light {
   min-height: 100%;
 }
-
+.wrap-header {
+  display: flex;
+}
+.wrap-header .date {
+  margin-right: 6em;
+  overflow: auto;
+}
 .ant-layout-header .trigger.anticon {
   font-size: 18px;
   margin-left: 20px;
+  padding-top: 22px;
 }
 .centered {
   position: absolute;
@@ -262,10 +274,12 @@
 .posDate {
   margin-left: 2em;
   color: #1890ff;
+  white-space: pre;
 }
 .today {
   margin-left: 2em;
   color: #f064dd;
+  white-space: pre;
 }
 .s-t {
   margin-right: 5px;
@@ -286,6 +300,7 @@
 .nvf {
   background: #fff;
   padding: 1em;
+  overflow: auto;
 }
 .no-valid-form .ant-form-item {
   margin-bottom: 0;
@@ -501,6 +516,9 @@
   font-size: 12px;
   text-transform: uppercase;
 }
+.bill-detail-table {
+  overflow: auto;
+}
 .bill-detail-table .green {
   color: #1bd870;
 }
@@ -520,6 +538,7 @@
 
 .dt2-h {
   background: rgba(50, 190, 255, 0.61);
+  overflow: auto;
   padding: 1em;
   border-radius: 5px;
   -webkit-box-shadow: 6px 6px 10px -5px rgba(0, 0, 0, 0.75);
@@ -530,7 +549,7 @@
 .dt2-h .sz {
   border-radius: 5px;
   text-align: center;
-  margin: 0 1em;
+  /* margin: 0 1em; */
   height: 62px;
   padding-top: 0.6em;
   background: rgba(13, 141, 201, 0.863);
@@ -640,6 +659,7 @@
 .dt2-actions {
   margin-top: 2em;
   display: flex;
+  overflow: auto;
 }
 .dt2-actions .btn-sp {
   width: 120px;
@@ -659,6 +679,7 @@
 .dt2-actions .btn-d {
   padding: 0;
   height: 48px;
+  width: 115px;
   margin-bottom: 4px;
   white-space: normal;
   word-wrap: break-word;
@@ -670,6 +691,7 @@
   margin: 0 1em;
   border: 1px solid #d9d9d9;
   border-radius: 5px;
+  width: 100%;
 }
 .bz .row {
   height: 32px;
@@ -702,4 +724,13 @@
 }
 .detail-page {
   padding-bottom: 90px;
+}
+.col-custom {
+  padding: 0 10px;
+  margin-top: 5px;
+}
+.ki-2 .btn {
+  height: 70px;
+  line-height: 70px;
+  font-size: 40px;
 }

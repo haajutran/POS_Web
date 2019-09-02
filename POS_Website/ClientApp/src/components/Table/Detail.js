@@ -229,7 +229,6 @@ class TableDetail extends Component {
   saveVoid = async () => {
     const { checkNo, selectedRow, voidQty, selectedVoid } = this.state;
     const data = {
-      CheckNo: checkNo,
       TrnSeq: selectedRow.trnSeq,
       VoidQty: voidQty ? voidQty : "",
       VoidReason: selectedVoid ? selectedVoid : ""
@@ -490,22 +489,11 @@ class TableDetail extends Component {
     });
   };
 
-  clickRemoveVoidQuantity = () => {
-    var { voidQty } = this.state;
-    const quantity = voidQty.toString();
-
-    if (quantity.length === 1) {
-      voidQty = "0";
-      this.setState({
-        voidQty
-      });
-    } else if (quantity.length > 1) {
-      const minusQuantity = quantity.substring(0, quantity.length - 1);
-      voidQty = minusQuantity;
-      this.setState({
-        voidQty
-      });
-    }
+  clearVoidQuantity = () => {
+    // console.log(voidQty.length);
+    this.setState({
+      voidQty: ""
+    });
   };
 
   // #endregion
@@ -516,6 +504,14 @@ class TableDetail extends Component {
     if (sendOrderRes === 200) {
       await this.requestBillDetail();
     }
+  };
+  clearChangeQuantity = () => {
+    this.setState({
+      selectedRow: {
+        ...this.state.selectedRow,
+        qTy: ""
+      }
+    });
   };
 
   handleSelectRequest = async reqCode => {
@@ -1287,17 +1283,7 @@ class TableDetail extends Component {
                 </div>
               </div>
             </div>
-            <div className={`ab-item`}>
-              <div className="ab-wrap">
-                <div className="ab-icon">
-                  <Icon type="menu" />
-                </div>
 
-                <div className="ab-text">
-                  <p>Top Menu</p>
-                </div>
-              </div>
-            </div>
             <div className={`ab-item`} onClick={() => this.handleAddRequest()}>
               <div className="ab-wrap">
                 <div className="ab-icon">
@@ -1453,96 +1439,101 @@ class TableDetail extends Component {
                       <b>Quantity</b>
                     </Col>
                     <Col span={24}>
-                      <div className="quantity-zone">
+                      <div>
                         <Input
-                          readOnly
-                          className="input"
+                          prefix={
+                            <Icon
+                              type="calculator"
+                              style={{ color: "rgba(0,0,0,.25)" }}
+                            />
+                          }
                           value={selectedRow.qTy}
+                          style={{ marginBottom: 20, marginTop: 20 }}
+                          placeholder="Quantity"
                         />
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("1")}
-                        >
-                          1
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("2")}
-                        >
-                          2
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("3")}
-                        >
-                          3
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("4")}
-                        >
-                          4
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("5")}
-                        >
-                          5
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("6")}
-                        >
-                          6
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("7")}
-                        >
-                          7
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("8")}
-                        >
-                          8
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("9")}
-                        >
-                          9
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("0")}
-                        >
-                          0
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.clickRemoveChangeQuantity()}
-                        >
-                          <img
-                            src={BackspaceIcon}
-                            style={{
-                              width: 25,
-                              paddingRight: 2,
-                              paddingBottom: 2
-                            }}
-                          />
-                        </Button>
+
+                        <div className="keys-input ki-2">
+                          <div className="row">
+                            <div
+                              className={`btn`}
+                              onClick={() => this.changeQuantity(7)}
+                            >
+                              7
+                            </div>
+                            <div
+                              className={`btn `}
+                              onClick={() => this.changeQuantity(8)}
+                            >
+                              8
+                            </div>
+                            <div
+                              className={`btn`}
+                              onClick={() => this.changeQuantity(9)}
+                            >
+                              9
+                            </div>
+                          </div>
+                          <div className="row">
+                            <div
+                              className={`btn`}
+                              onClick={() => this.changeQuantity(4)}
+                            >
+                              4
+                            </div>
+                            <div
+                              className={`btn `}
+                              onClick={() => this.changeQuantity(5)}
+                            >
+                              5
+                            </div>
+                            <div
+                              className={`btn `}
+                              onClick={() => this.changeQuantity(6)}
+                            >
+                              6
+                            </div>
+                          </div>
+                          <div className="row">
+                            <div
+                              className={`btn `}
+                              onClick={() => this.changeQuantity(1)}
+                            >
+                              1
+                            </div>
+                            <div
+                              className={`btn `}
+                              onClick={() => this.changeQuantity(2)}
+                            >
+                              2
+                            </div>
+                            <div
+                              className={`btn `}
+                              onClick={() => this.changeQuantity(3)}
+                            >
+                              3
+                            </div>
+                          </div>
+                          <div className="row">
+                            <div
+                              className={`btn`}
+                              onClick={() => this.clearChangeQuantity()}
+                            >
+                              Clear
+                            </div>
+                            <div
+                              className={`btn `}
+                              onClick={() => this.changeQuantity(0)}
+                            >
+                              0
+                            </div>
+                            <div
+                              className={`btn`}
+                              onClick={() => this.changeQuantity(".")}
+                            >
+                              .
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </Col>
                   </div>
@@ -1629,111 +1620,114 @@ class TableDetail extends Component {
           onOk={this.saveVoid}
           onCancel={() => this.cancelVoidModal()}
         >
-          {parseInt(selectedRow.qTy) > 1 && (
-            <div className="quantity-zone">
-              <Input readOnly className="input" value={this.state.voidQty} />
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("1")}
-              >
-                1
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("2")}
-              >
-                2
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("3")}
-              >
-                3
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("4")}
-              >
-                4
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("5")}
-              >
-                5
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("6")}
-              >
-                6
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("7")}
-              >
-                7
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("8")}
-              >
-                8
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("9")}
-              >
-                9
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("0")}
-              >
-                0
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickRemoveVoidQuantity()}
-              >
-                <img
-                  src={BackspaceIcon}
-                  style={{
-                    width: 25,
-                    paddingRight: 2,
-                    paddingBottom: 2
-                  }}
-                />
-              </Button>
-            </div>
-          )}
           <Select
             placeholder="Select Void"
-            style={{ width: "100%" }}
+            style={{ width: "100%", marginBottom: 20 }}
             onChange={this.handleChangeVoid}
             labelInValue
           >
             {voidReason.map(item => (
               <Option value={item.id}>{item.vReason}</Option>
             ))}
-            {/* <Option value="jack">Jack</Option>
-            <Option value="lucy">Lucy</Option>
-            <Option value="disabled" disabled>
-              Disabled
-            </Option>
-            <Option value="Yiminghe">yiminghe</Option> */}
           </Select>
+          {parseInt(selectedRow.qTy) > 1 && (
+            <div>
+              <Input
+                prefix={
+                  <Icon
+                    type="calculator"
+                    style={{ color: "rgba(0,0,0,.25)" }}
+                  />
+                }
+                value={this.state.voidQty}
+                style={{ marginBottom: 20 }}
+                placeholder="Quantity"
+              />
+
+              <div className="keys-input ki-2">
+                <div className="row">
+                  <div
+                    className={`btn`}
+                    onClick={() => this.clickVoidQuantity(7)}
+                  >
+                    7
+                  </div>
+                  <div
+                    className={`btn `}
+                    onClick={() => this.clickVoidQuantity(8)}
+                  >
+                    8
+                  </div>
+                  <div
+                    className={`btn`}
+                    onClick={() => this.clickVoidQuantity(9)}
+                  >
+                    9
+                  </div>
+                </div>
+                <div className="row">
+                  <div
+                    className={`btn`}
+                    onClick={() => this.clickVoidQuantity(4)}
+                  >
+                    4
+                  </div>
+                  <div
+                    className={`btn `}
+                    onClick={() => this.clickVoidQuantity(5)}
+                  >
+                    5
+                  </div>
+                  <div
+                    className={`btn `}
+                    onClick={() => this.clickVoidQuantity(6)}
+                  >
+                    6
+                  </div>
+                </div>
+                <div className="row">
+                  <div
+                    className={`btn `}
+                    onClick={() => this.clickVoidQuantity(1)}
+                  >
+                    1
+                  </div>
+                  <div
+                    className={`btn `}
+                    onClick={() => this.clickVoidQuantity(2)}
+                  >
+                    2
+                  </div>
+                  <div
+                    className={`btn `}
+                    onClick={() => this.clickVoidQuantity(3)}
+                  >
+                    3
+                  </div>
+                </div>
+                <div className="row">
+                  <div
+                    className={`btn`}
+                    onClick={() => this.clearVoidQuantity()}
+                  >
+                    Clear
+                  </div>
+                  <div
+                    className={`btn `}
+                    onClick={() => this.clickVoidQuantity(0)}
+                  >
+                    0
+                  </div>
+                  <div
+                    className={`btn`}
+                    onClick={() => this.clickVoidQuantity(".")}
+                  >
+                    .
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </Modal>
 
         <Modal
@@ -1742,94 +1736,102 @@ class TableDetail extends Component {
           onOk={this.saveVoid}
           onCancel={() => this.cancelVoidUnsendModal()}
         >
-          Are you sure?
           {parseInt(selectedRow.qTy) > 1 && (
-            <div className="quantity-zone">
-              <Input readOnly className="input" value={this.state.voidQty} />
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("1")}
-              >
-                1
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("2")}
-              >
-                2
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("3")}
-              >
-                3
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("4")}
-              >
-                4
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("5")}
-              >
-                5
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("6")}
-              >
-                6
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("7")}
-              >
-                7
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("8")}
-              >
-                8
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("9")}
-              >
-                9
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickVoidQuantity("0")}
-              >
-                0
-              </Button>
-              <Button
-                shape="circle"
-                size={"large"}
-                onClick={() => this.clickRemoveVoidQuantity()}
-              >
-                <img
-                  src={BackspaceIcon}
-                  style={{
-                    width: 25,
-                    paddingRight: 2,
-                    paddingBottom: 2
-                  }}
-                />
-              </Button>
+            <div>
+              <Input
+                prefix={
+                  <Icon
+                    type="calculator"
+                    style={{ color: "rgba(0,0,0,.25)" }}
+                  />
+                }
+                value={this.state.voidQty}
+                style={{ marginBottom: 20 }}
+                placeholder="Quantity"
+              />
+
+              <div className="keys-input ki-2">
+                <div className="row">
+                  <div
+                    className={`btn`}
+                    onClick={() => this.clickVoidQuantity(7)}
+                  >
+                    7
+                  </div>
+                  <div
+                    className={`btn `}
+                    onClick={() => this.clickVoidQuantity(8)}
+                  >
+                    8
+                  </div>
+                  <div
+                    className={`btn`}
+                    onClick={() => this.clickVoidQuantity(9)}
+                  >
+                    9
+                  </div>
+                </div>
+                <div className="row">
+                  <div
+                    className={`btn`}
+                    onClick={() => this.clickVoidQuantity(4)}
+                  >
+                    4
+                  </div>
+                  <div
+                    className={`btn `}
+                    onClick={() => this.clickVoidQuantity(5)}
+                  >
+                    5
+                  </div>
+                  <div
+                    className={`btn `}
+                    onClick={() => this.clickVoidQuantity(6)}
+                  >
+                    6
+                  </div>
+                </div>
+                <div className="row">
+                  <div
+                    className={`btn `}
+                    onClick={() => this.clickVoidQuantity(1)}
+                  >
+                    1
+                  </div>
+                  <div
+                    className={`btn `}
+                    onClick={() => this.clickVoidQuantity(2)}
+                  >
+                    2
+                  </div>
+                  <div
+                    className={`btn `}
+                    onClick={() => this.clickVoidQuantity(3)}
+                  >
+                    3
+                  </div>
+                </div>
+                <div className="row">
+                  <div
+                    className={`btn`}
+                    onClick={() => this.clearVoidQuantity()}
+                  >
+                    Clear
+                  </div>
+                  <div
+                    className={`btn `}
+                    onClick={() => this.clickVoidQuantity(0)}
+                  >
+                    0
+                  </div>
+                  <div
+                    className={`btn`}
+                    onClick={() => this.clickVoidQuantity(".")}
+                  >
+                    .
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </Modal>

@@ -89,22 +89,30 @@ class MainLayout extends React.Component {
               </Menu>
             </Sider>
             <Layout>
-              <Header style={{ background: "#fff", padding: 0 }}>
-                <Icon
-                  className="trigger"
-                  type={collapsed ? "menu-unfold" : "menu-fold"}
-                  onClick={this.toggle}
-                />
-                <span className="posDate">
-                  <span className="s-t">POS DATE:</span>
-                  {moment(new Date(sessionStorage.getItem("posDate"))).format(
-                    "DD/MM/YYYY"
-                  )}
-                </span>
-                <span className="today">
-                  <span className="s-t">NOW:</span>
-                  {time}
-                </span>
+              <Header
+                style={{ background: "#fff", padding: 0 }}
+                className="header"
+              >
+                <div className="wrap-header">
+                  <Icon
+                    className="trigger"
+                    type={collapsed ? "menu-unfold" : "menu-fold"}
+                    onClick={this.toggle}
+                  />
+                  <div className="date">
+                    <span className="posDate">
+                      <span className="s-t">POS DATE:</span>
+                      {moment(
+                        new Date(sessionStorage.getItem("posDate"))
+                      ).format("DD/MM/YYYY")}
+                    </span>
+                    <span className="today">
+                      <span className="s-t">NOW:</span>
+                      {time}
+                    </span>
+                  </div>
+                </div>
+
                 <NotiCashier />
               </Header>
               <Content

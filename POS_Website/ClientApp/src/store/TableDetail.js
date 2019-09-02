@@ -257,15 +257,15 @@ export const actionCreators = {
   },
 
   voidItem: data => async () => {
+    // console.log(data);
     var url = `api/VoidItem/VoidItem?`;
     for (let [key, value] of Object.entries(data)) {
       // console.log(`${key}: ${value.length}`);
-      if (value.length > 0) {
-        url += key + "=" + value + "&";
+      if (value.toString().length > 0) {
+        url = url + key + "=" + value + "&";
       }
     }
     const res = await dataServices.post(url, "");
-
     console.log(url);
     console.log(res);
     return res;
