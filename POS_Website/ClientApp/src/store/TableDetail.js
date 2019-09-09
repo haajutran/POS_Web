@@ -15,6 +15,9 @@ const receiveVoidReasonType = "RECEIVE_VOID_REASON";
 const requestRequestType = "REQUEST_REQUEST";
 const receiveRequestType = "RECEIVE_REQUEST";
 
+const requestTaxServiceType = "REQUEST_TAX_SERVICE";
+const receiveTaxServiceType = "RECEIVE_TAX_SERVICE";
+
 const initialState = {
   isLoading: false,
   menus: [],
@@ -22,7 +25,8 @@ const initialState = {
   course: [],
   billDetail: [],
   requests: [],
-  voidReason: []
+  voidReason: [],
+  taxServices: []
 };
 
 export const actionCreators = {
@@ -116,6 +120,7 @@ export const actionCreators = {
       const res = await dataServices.get(
         `api/SendOrder/SendOrder?CheckNo=${checkNo}`
       );
+      console.log(res);
       return res.status;
     } catch (e) {
       console.log(e.message);
@@ -148,7 +153,7 @@ export const actionCreators = {
       }&SelectedCourse=${data.SelectedCourse}`;
 
       const res = await dataServices.get(`${url}`);
-      // console.log(url);
+      console.log(res);
       return res.status;
       // if (res.status === 200) {
       //   return res.data[0];
@@ -266,9 +271,82 @@ export const actionCreators = {
       }
     }
     const res = await dataServices.post(url, "");
-    console.log(url);
-    console.log(res);
     return res;
+  },
+
+  cancelBill: checkNo => async () => {
+    try {
+      const res = await dataServices.post(
+        `api/CancelAll/CancelAllBill?CheckNo=${checkNo}`,
+        ""
+      );
+      if (res.status === 200) {
+        window.location.replace("/");
+      }
+    } catch (e) {
+      console.log(e.message);
+    }
+  },
+  hideBill: data => async () => {
+    try {
+      const res = await dataServices.post(
+        `api/HideBill/HideBill?CheckNo=${data.checkNo}&ReOpen=${data.reOpen}&MyOpenID=${data.myOpenID}`,
+        ""
+      );
+      // console.log(res);
+      if (res.status === 200) {
+        window.location.replace("/");
+      }
+    } catch (e) {
+      console.log(e.message);
+    }
+  },
+  getAddOn: data => async () => {
+    try {
+      const res = await dataServices.post(
+        `api/AddOn/GetAddOn?OrderNo=${data.OrderNo}&TrnSeq=${data.TrnSeq}&ItemCode=${data.ItemCode}`,
+        ""
+      );
+      return res;
+    } catch (e) {
+      console.log(e.message);
+    }
+  },
+  payCash: data => async () => {
+    try {
+      const res = await dataServices.get(
+        `api/PayCash/PayCash?CheckNo=${data.checkNo}&GuestPay=${data.guestPay}`
+      );
+      return res;
+    } catch (e) {
+      console.log(e.message);
+    }
+  },
+  requestTaxService: () => async dispatch => {
+    try {
+      dispatch({ type: requestTaxServiceType });
+      const res = await dataServices.get(
+        `api/AddRemoveTaxService/GetTitleAddRemoveTaxSVR`
+      );
+      if (res.status === 200) {
+        console.log(res.data);
+
+        dispatch({ type: receiveTaxServiceType, taxServices: res.data });
+      }
+    } catch (e) {
+      console.log(e.message);
+      dispatch({ type: receiveTaxServiceType, taxServices: [] });
+    }
+  },
+  addTaxService: data => async () => {
+    try {
+      const res = await dataServices.get(
+        `api/AddRemoveTaxService/GetAddRemoveTaxService?CheckNo=${data.checkNo}&Func=${data.func}`
+      );
+      return res;
+    } catch (e) {
+      console.log(e.message);
+    }
   }
 };
 
@@ -346,6 +424,21 @@ export const reducer = (state, action) => {
     return {
       ...state,
       voidReason: action.voidReason,
+      isLoading: false
+    };
+  }
+
+  if (action.type === requestTaxServiceType) {
+    return {
+      ...state,
+      isLoading: true
+    };
+  }
+
+  if (action.type === receiveTaxServiceType) {
+    return {
+      ...state,
+      taxServices: action.taxServices,
       isLoading: false
     };
   }

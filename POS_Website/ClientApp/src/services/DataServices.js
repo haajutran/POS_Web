@@ -1,4 +1,5 @@
 import * as constant from "./Constant";
+import { message } from "antd";
 import axios from "axios";
 
 function getHeader() {
@@ -36,28 +37,42 @@ export const login = async data => {
 };
 
 export const get = async url => {
-  return await axios
-    .get(constant.BASE_URL + url)
-    .then(res => {
-      return res;
-    })
-    .catch(error => {
-      return error.response;
-    });
+  try {
+    const res = await axios.get(constant.BASE_URL + url);
+    if (
+      res.status === 200 &&
+      res.data.length > 0 &&
+      res.data[0].resuilt === 1
+    ) {
+      message.error(res.data[0].message);
+    }
+    return res;
+  } catch (e) {
+    return e.response;
+  }
 };
 
 export const post = async (url, data) => {
   // console.log(url, data);
-  return await axios
-    .post(constant.BASE_URL + url, JSON.stringify(data), {
-      headers: getHeader()
-    })
-    .then(res => {
-      return res;
-    })
-    .catch(error => {
-      return error.message;
-    });
+  try {
+    const res = await axios.post(
+      constant.BASE_URL + url,
+      JSON.stringify(data),
+      {
+        headers: getHeader()
+      }
+    );
+    if (
+      res.status === 200 &&
+      res.data.length > 0 &&
+      res.data[0].resuilt === 1
+    ) {
+      message.error(res.data[0].message);
+    }
+    return res;
+  } catch (e) {
+    return e.response;
+  }
 };
 
 export const upload = async (url, file) => {

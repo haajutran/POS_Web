@@ -498,6 +498,7 @@
 .ab-item {
   color: #fff;
   cursor: pointer;
+  user-select: none;
 }
 .ab-item:hover {
   background: #606060;
@@ -538,6 +539,7 @@
 
 .dt2-h {
   background: rgba(50, 190, 255, 0.61);
+  margin-bottom: 2em;
   overflow: auto;
   padding: 1em;
   border-radius: 5px;
@@ -623,6 +625,9 @@
 }
 .selected-row:hover {
   background: none;
+}
+.bill-detail-table .ant-table-tbody {
+  max-height: 200px !important;
 }
 .bill-detail-table .ant-table-thead > tr:hover > td,
 .bill-detail-table .ant-table-tbody > tr:hover > td {
@@ -730,7 +735,56 @@
   margin-top: 5px;
 }
 .ki-2 .btn {
-  height: 70px;
-  line-height: 70px;
-  font-size: 40px;
+  height: 50px;
+  line-height: 50px;
+  font-size: 30px;
+}
+.addon-modal {
+  width: 650px !important;
+}
+.addon-btn {
+  text-align: center;
+  width: 150px;
+  margin: 5px 10px;
+  display: inline-flex;
+  color: #4d4d4d;
+  border: 2px solid #4d4d4d;
+  height: 52px;
+  padding: 2px 5px;
+  overflow: hidden;
+  -o-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  border-radius: 5px;
+  box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.16);
+  user-select: none;
+}
+.addon-btn:hover {
+  color: #646464dc;
+  border: 2px solid #646464dc;
+}
+.addon-btn:active {
+  color: #646464dc;
+  border: 2px solid #646464dc;
+}
+.addon-btn.active {
+  color: #fff;
+  background: #4d4d4d;
+}
+.addon-btn span {
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+}
+.order-info {
+  padding: 10px;
+}
+.order-item-info {
+  color: #fff;
+  display: flex;
+}
+.order-item-info .title {
+  width: 100px;
+  font-weight: bold;
+  text-align: right;
+  margin-right: 5px;
 }

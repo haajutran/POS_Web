@@ -22,6 +22,7 @@ import * as CurrencyFormat from "react-currency-format";
 import BackspaceIcon from "../../assets/images/backspace-icon.png";
 import * as TimeServices from "../../services/TimeServices";
 
+const { confirm } = Modal;
 const { Option } = Select;
 
 class TableDetail extends Component {
@@ -46,7 +47,10 @@ class TableDetail extends Component {
       voidModalVisible: false,
       voidUnsendModalVisible: false,
       selectedVoid: "",
-      voidQty: ""
+      voidQty: "",
+      addOnVisible: false,
+      addOn: [],
+      addOnSelected: []
     };
   }
 
@@ -70,6 +74,7 @@ class TableDetail extends Component {
         selectedCourse
       );
       const tableDetail = await this.props.getTableDetail(checkNo);
+      console.log(tableDetail);
       const adult = tableDetail.adult;
       const child = tableDetail.child;
       const total = parseInt(adult) + parseInt(child);
@@ -146,12 +151,12 @@ class TableDetail extends Component {
 
     // }
   };
-
-  handleClickMainMenu = async iCode => {
-    const { checkNo, selectedCourse, selectedGuest, quantity } = this.state;
+  postItem = async (iCode, quantity) => {
+    const { checkNo, selectedCourse, selectedGuest } = this.state;
     var setQty = "";
     if (quantity === "0") {
-      setQty = 1;
+      message.warning("Please input quantity!");
+      return;
     } else {
       setQty = quantity;
     }
@@ -165,7 +170,15 @@ class TableDetail extends Component {
       SelectedGuest: selectedGuest
     };
     const res = await this.props.postItemManual(data);
+    return res;
+  };
+  handleClickMainMenu = async iCode => {
+    const { quantity } = this.state;
+    const res = await this.postItem(iCode, quantity);
     if (res === 200) {
+      this.setState({
+        quantity: "0"
+      });
       await this.requestBillDetail();
     }
   };
@@ -501,6 +514,7 @@ class TableDetail extends Component {
   sendOrder = async () => {
     const { checkNo } = this.state;
     const sendOrderRes = await this.props.sendOrder(checkNo);
+    console.log(sendOrderRes);
     if (sendOrderRes === 200) {
       await this.requestBillDetail();
     }
@@ -597,6 +611,7 @@ class TableDetail extends Component {
   hold = async () => {
     const { checkNo } = this.state;
     const orderHoldRes = await this.props.getOrderHold(checkNo);
+    console.log(orderHoldRes);
     if (orderHoldRes.status === 200) {
       const oHList = orderHoldRes.data;
       console.log(oHList);
@@ -611,6 +626,124 @@ class TableDetail extends Component {
         }
       }
     }
+  };
+
+  cancelBill = async () => {
+    const that = this;
+    const { checkNo } = this.state;
+    confirm({
+      title: "Are you sure cancel this bill?",
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
+      onOk() {
+        that.props.cancelBill(checkNo);
+      },
+      onCancel() {
+        console.log("Cancel");
+      }
+    });
+  };
+
+  hideBill = async () => {
+    const that = this;
+    const { checkNo, tableDetail } = this.state;
+    console.log(this.state);
+    const data = {
+      checkNo,
+      reOpen: 0,
+      myOpenID: tableDetail.myOpenID
+    };
+    confirm({
+      title: "Are you sure hide this bill?",
+      content: (
+        <Button type="danger" onClick={() => that.sendOrderAndHideBill(data)}>
+          Send Order & Hide Bill
+        </Button>
+      ),
+      okText: "Hide Bill",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk() {
+        that.props.hideBill(data);
+      },
+      onCancel() {
+        console.log("Cancel");
+      }
+    });
+  };
+
+  sendOrderAndHideBill = async data => {
+    const sendOrderRes = await this.props.sendOrder(data.checkNo);
+    console.log(sendOrderRes);
+    if (sendOrderRes === 200) {
+      this.props.hideBill(data);
+    }
+  };
+
+  addOn = async () => {
+    const { selectedRow } = this.state;
+    if (selectedRow === "") {
+      notification.open({
+        message: "Please select item first!",
+        className: "alert-noti"
+      });
+    } else if (selectedRow.ptoCheck === 0 && selectedRow.pToOrder === 0) {
+      const data = {
+        OrderNo: selectedRow.o,
+        TrnSeq: selectedRow.trnSeq,
+        ItemCode: selectedRow.itemCode
+      };
+      const res = await this.props.getAddOn(data);
+      if (res.status === 200 && res.data[0].resuilt === 1) {
+        message.error(res.data[0].message);
+        return;
+      }
+
+      this.setState({
+        addOnVisible: true,
+        addOn: res.data
+      });
+    }
+  };
+
+  cancelVoidModal = () => {
+    this.setState({
+      addOnVisible: false,
+      addOn: []
+    });
+  };
+
+  submitAddOn = async () => {
+    const { addOnSelected, checkNo } = this.state;
+    if (addOnSelected.length < 1) {
+      message.warn("Please select at least 1 item!");
+      return;
+    }
+    for (let i = 0; i < addOnSelected.length; i++) {
+      const res = await this.postItem(addOnSelected[i].iCode, 1);
+      console.log(res);
+    }
+    await this.requestBillDetail();
+    this.cancelVoidModal();
+  };
+
+  handleClickAddOnItem = item => {
+    var { addOnSelected } = this.state;
+    if (!addOnSelected.find(i => i.iCode === item.iCode)) {
+      addOnSelected.push(item);
+    } else {
+      var temp = [];
+      addOnSelected.map(i => {
+        if (i.iCode !== item.iCode) {
+          temp.push(i);
+        }
+      });
+      addOnSelected = temp;
+    }
+    this.setState({
+      addOnSelected
+    });
   };
 
   render() {
@@ -640,7 +773,8 @@ class TableDetail extends Component {
       classRequests,
       itemRequests,
       isChoosingRequest,
-      isOtherRequest
+      isOtherRequest,
+      addOn
     } = this.state;
     const {
       menus,
@@ -1224,7 +1358,24 @@ class TableDetail extends Component {
         )}
         <div className="table-actions">
           <div className="ab">
-            <div className={`ab-item`} onClick={() => this.sum()}>
+            {billDetail && billDetail[0] && (
+              <div className="order-info">
+                <div className="order-item-info">
+                  <div className="title">Sub Amount: </div>
+                  <div> {billDetail[0].totalSubAmount}</div>
+                </div>
+                <div className="order-item-info">
+                  <div className="title">Tax Amount: </div>
+                  <div> {billDetail[0].totalTaxAmount}</div>
+                </div>
+                <div className="order-item-info">
+                  <div className="title">Total Amount: </div>
+                  <div> {billDetail[0].totalAmount}</div>
+                </div>
+              </div>
+            )}
+
+            <div className={`ab-item sl`} onClick={() => this.sum()}>
               <div className="ab-wrap">
                 <div className="ab-icon">
                   <Icon type="plus-square" />
@@ -1245,7 +1396,7 @@ class TableDetail extends Component {
                 </div>
 
                 <div className="ab-text">
-                  <p>...</p>
+                  <p>Recall</p>
                 </div>
               </div>
             </div>
@@ -1261,7 +1412,7 @@ class TableDetail extends Component {
               </div>
             </div>
 
-            <div className={`ab-item`}>
+            <div className={`ab-item`} onClick={() => this.cancelBill()}>
               <div className="ab-wrap">
                 <div className="ab-icon">
                   <Icon type="close" />
@@ -1306,7 +1457,7 @@ class TableDetail extends Component {
                 </div>
               </div>
             </div>
-            <div className={`ab-item`}>
+            <div className={`ab-item`} onClick={() => this.addOn()}>
               <div className="ab-wrap">
                 <div className="ab-icon">
                   <Icon type="appstore" />
@@ -1331,7 +1482,10 @@ class TableDetail extends Component {
                 </div>
               </div>
             </div>
-            <div className={`ab-item`}>
+            <div className={`ab-item`} 
+             onClick={() =>
+                    window.location.replace(`/tableDetail2/${checkNo}`)
+                  }>
               <div className="ab-wrap">
                 <div className="ab-icon">
                   <Icon type="bars" />
@@ -1345,10 +1499,19 @@ class TableDetail extends Component {
                 </div>
               </div>
             </div>
-            <div
-              className={`ab-item sl`}
-              // onClick={() => this.handleChangeQuantity()}
-            >
+            <div className={`ab-item sl`} onClick={() => this.sendOrder()}>
+              <div className="ab-wrap">
+                <div className="ab-icon">
+                  <Icon type="select" />
+                </div>
+
+                <div className="ab-text">
+                  <p>Send Order</p>
+                </div>
+              </div>
+            </div>
+
+            <div className={`ab-item`} onClick={() => this.hideBill()}>
               <div className="ab-wrap">
                 <div className="ab-icon">
                   <Icon type="check" />
@@ -1834,6 +1997,27 @@ class TableDetail extends Component {
               </div>
             </div>
           )}
+        </Modal>
+
+        <Modal
+          title={`Add On ${selectedRow.trnDesc}`}
+          visible={this.state.addOnVisible}
+          onOk={this.submitAddOn}
+          onCancel={() => this.cancelVoidModal()}
+          className="addon-modal"
+        >
+          <div>
+            {addOn.map(item => (
+              <div
+                className={`addon-btn ${this.state.addOnSelected.find(
+                  i => i.iCode === item.iCode
+                ) && "active"}`}
+                onClick={() => this.handleClickAddOnItem(item)}
+              >
+                <span>{item.iName}</span>
+              </div>
+            ))}
+          </div>
         </Modal>
       </div>
     );

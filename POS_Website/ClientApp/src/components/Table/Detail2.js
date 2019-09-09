@@ -50,7 +50,11 @@ class TableDetail2 extends Component {
       voidModalVisible: false,
       voidUnsendModalVisible: false,
       selectedVoid: "",
-      voidQty: ""
+      voidQty: "",
+      payCashModalVisible: false,
+      guestPay: "",
+      taxServiceModalVisible: false,
+      taxServiceSelected: undefined
     };
   }
 
@@ -238,6 +242,12 @@ class TableDetail2 extends Component {
     }
   };
 
+  showPayCashModal = () => {
+    this.setState({
+      payCashModalVisible: true
+    });
+  };
+
   showVoidModal = () => {
     this.setState({
       voidModalVisible: true
@@ -269,6 +279,10 @@ class TableDetail2 extends Component {
     const { checkNo, selectedRow, voidQty, selectedVoid } = this.state;
     if (parseInt(selectedRow.qTy) > 1 && voidQty === "") {
       message.warning("Please input quantity!");
+      return;
+    }
+    if (voidQty.replace.includes("..")) {
+      message.error("Wrong input!");
       return;
     }
     const data = {
@@ -445,6 +459,51 @@ class TableDetail2 extends Component {
         quantity: minusQuantity
       });
     }
+  };
+
+  clickGuestPay = guestPay => {
+    var temp = "";
+    if (this.state.guestPay === "0") {
+      temp = guestPay;
+    } else {
+      temp = this.state.guestPay + "" + guestPay;
+    }
+    console.log(temp);
+    this.setState({
+      guestPay: temp
+    });
+  };
+  payCash = async () => {
+    const { checkNo, guestPay } = this.state;
+    console.log(guestPay);
+    if (guestPay === "") {
+      message.warn("Please input guest pay!");
+      return;
+    }
+    if (guestPay.includes("..")) {
+      message.error("Wrong input!");
+      return;
+    }
+    const data = {
+      checkNo,
+      guestPay
+    };
+    const res = await this.props.payCash(data);
+    console.log(res);
+    // if(res.status === 200){
+
+    // }
+  };
+  cancelPayCashModal = () => {
+    this.setState({
+      guestPay: "",
+      payCashModalVisible: false
+    });
+  };
+  clearGuestPay = () => {
+    this.setState({
+      guestPay: ""
+    });
   };
 
   clickVoidQuantity = quantity => {
@@ -641,6 +700,48 @@ class TableDetail2 extends Component {
     }
   };
 
+  showTaxServiceModal = () => {
+    this.props.requestTaxService();
+    this.setState({
+      taxServiceModalVisible: true
+    });
+  };
+
+  cancelTaxServiceModal = () => {
+    this.setState({
+      taxServiceModalVisible: false,
+      taxServiceSelected: undefined
+    });
+  };
+
+  handleSelectTaxService = taxService => {
+    // const { taxServiceSelected } = this.state;
+    console.log(taxService);
+    this.setState({
+      taxServiceSelected: taxService
+    });
+  };
+
+  addTaxService = async () => {
+    const { taxServiceSelected, checkNo } = this.state;
+    console.log(taxServiceSelected);
+    if (!taxServiceSelected) {
+      message.error("Please select Tax Service!");
+      return;
+    }
+    const data = {
+      checkNo,
+      func: taxServiceSelected
+    };
+    console.log(data);
+    const res = await this.props.addTaxService(data);
+    if (res.status === 200) {
+      message.success("Success.");
+      this.requestBillDetail();
+      this.cancelTaxServiceModal();
+    }
+  };
+
   render() {
     const {
       tableDetail,
@@ -658,7 +759,8 @@ class TableDetail2 extends Component {
       classRequests,
       itemRequests,
       isChoosingRequest,
-      isOtherRequest
+      isOtherRequest,
+      taxServiceSelected
     } = this.state;
     const {
       menus,
@@ -666,9 +768,10 @@ class TableDetail2 extends Component {
       course,
       billDetail,
       requests,
-      voidReason
+      voidReason,
+      taxServices
     } = this.props;
-    console.log(tableDetail);
+    console.log(taxServices);
     return (
       <Col>
         {tableDetail && (
@@ -801,11 +904,19 @@ class TableDetail2 extends Component {
             </div>
             <Col className="dt2-actions">
               <div className="btn-sp">
-                <Button className="sp-btn">
+                <Button
+                  className="sp-btn"
+                  onClick={() =>
+                    window.location.replace(`/tableDetail/${checkNo}`)
+                  }
+                >
                   <Icon type="bell" />
                   Recall Order
                 </Button>
-                <Button className="btn-d">
+                <Button
+                  className="btn-d"
+                  onClick={() => this.showTaxServiceModal()}
+                >
                   <p>Add/Rmv</p>
                   <p>Tax/Svr</p>
                 </Button>
@@ -962,7 +1073,10 @@ class TableDetail2 extends Component {
                 >
                   Void
                 </Button>
-                <Button className="sp-btn">
+                <Button
+                  className="sp-btn"
+                  onClick={() => this.showPayCashModal()}
+                >
                   <Icon type="dollar" />
                   Pay Cash
                 </Button>
@@ -1520,6 +1634,91 @@ class TableDetail2 extends Component {
               </div>
             </div>
           )}
+        </Modal>
+
+        <Modal
+          title={`Void ${selectedRow.trnDesc}`}
+          visible={this.state.payCashModalVisible}
+          onOk={this.payCash}
+          onCancel={() => this.cancelPayCashModal()}
+        >
+          <div>
+            <Input
+              prefix={
+                <Icon type="calculator" style={{ color: "rgba(0,0,0,.25)" }} />
+              }
+              value={this.state.guestPay}
+              style={{ marginBottom: 20 }}
+              placeholder="Quantity"
+            />
+
+            <div className="keys-input ki-2">
+              <div className="row">
+                <div className={`btn`} onClick={() => this.clickGuestPay(7)}>
+                  7
+                </div>
+                <div className={`btn `} onClick={() => this.clickGuestPay(8)}>
+                  8
+                </div>
+                <div className={`btn`} onClick={() => this.clickGuestPay(9)}>
+                  9
+                </div>
+              </div>
+              <div className="row">
+                <div className={`btn`} onClick={() => this.clickGuestPay(4)}>
+                  4
+                </div>
+                <div className={`btn `} onClick={() => this.clickGuestPay(5)}>
+                  5
+                </div>
+                <div className={`btn `} onClick={() => this.clickGuestPay(6)}>
+                  6
+                </div>
+              </div>
+              <div className="row">
+                <div className={`btn `} onClick={() => this.clickGuestPay(1)}>
+                  1
+                </div>
+                <div className={`btn `} onClick={() => this.clickGuestPay(2)}>
+                  2
+                </div>
+                <div className={`btn `} onClick={() => this.clickGuestPay(3)}>
+                  3
+                </div>
+              </div>
+              <div className="row">
+                <div className={`btn`} onClick={() => this.clearGuestPay()}>
+                  Clear
+                </div>
+                <div className={`btn `} onClick={() => this.clickGuestPay(0)}>
+                  0
+                </div>
+                <div className={`btn`} onClick={() => this.clickGuestPay(".")}>
+                  .
+                </div>
+              </div>
+            </div>
+          </div>
+        </Modal>
+        <Modal
+          title={`Tax Service`}
+          visible={this.state.taxServiceModalVisible}
+          onOk={this.addTaxService}
+          onCancel={() => this.cancelTaxServiceModal()}
+        >
+          <div>
+            {taxServices.length > 0 &&
+              taxServices.map(ts => (
+                <div
+                  className={`addon-btn ${taxServiceSelected &&
+                    taxServiceSelected === ts.func &&
+                    "active"}`}
+                  onClick={() => this.handleSelectTaxService(ts.func)}
+                >
+                  <span>{ts.description}</span>
+                </div>
+              ))}
+          </div>
         </Modal>
       </Col>
     );
