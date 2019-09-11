@@ -783,8 +783,21 @@
   display: flex;
 }
 .order-item-info .title {
-  width: 100px;
+  width: 110px;
   font-weight: bold;
   text-align: right;
   margin-right: 5px;
+}
+.order-item-info.total-amount {
+  font-size: 16px !important;
+  color: #56f3d8;
+}
+.more-options {
+  width: 100px;
+}
+.order-info-group {
+  display: flex;
+}
+.order-info-group .sl {
+  border-left: 1px rgb(190, 190, 190) solid;
 }

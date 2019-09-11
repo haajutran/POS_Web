@@ -94,8 +94,15 @@ class Login extends Component {
     // console.log("Received values of form: ", values);
   };
 
-  componentDidMount() {
-    this.props.requestDefRVCList();
+  async componentDidMount() {
+    await this.props.requestDefRVCList();
+    if (this.props.defRVCList.length > 0) {
+      const checkedRVCNo = this.props.defRVCList[0].rvcno;
+      this.setState({
+        checkedRVCNo
+      });
+    }
+
     this.checkNotis();
   }
 

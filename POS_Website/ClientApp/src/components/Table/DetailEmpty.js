@@ -53,6 +53,11 @@ class DetailEmpty extends Component {
       statistic,
       tableCode
     });
+
+    this.props.form.setFieldsValue({
+      adult: 1,
+      child: 0
+    });
   }
   getImageNull(item) {
     const { tableTypes } = this.props;
@@ -367,7 +372,7 @@ class DetailEmpty extends Component {
                     <Form.Item label="Table">
                       {getFieldDecorator("table", {
                         initialValue: tableCode
-                      })(<Input />)}
+                      })(<Input disabled />)}
                     </Form.Item>
                     <Form.Item label="Room">
                       {getFieldDecorator("room")(<Input />)}

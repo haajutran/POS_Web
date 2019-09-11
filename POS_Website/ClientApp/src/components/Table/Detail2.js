@@ -490,9 +490,10 @@ class TableDetail2 extends Component {
     };
     const res = await this.props.payCash(data);
     console.log(res);
-    // if(res.status === 200){
-
-    // }
+    if (res.status === 200) {
+      message.success("Success");
+      window.location.replace("/");
+    }
   };
   cancelPayCashModal = () => {
     this.setState({
@@ -771,6 +772,7 @@ class TableDetail2 extends Component {
       voidReason,
       taxServices
     } = this.props;
+
     console.log(taxServices);
     return (
       <Col>

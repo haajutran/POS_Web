@@ -15,6 +15,8 @@ import {
   notification,
   message,
   Select,
+  Menu,
+  Dropdown,
   Modal
 } from "antd";
 import moment from "moment";
@@ -784,6 +786,23 @@ class TableDetail extends Component {
       requests,
       voidReason
     } = this.props;
+
+    const menu = (
+      <Menu className="more-options">
+        <Menu.Item key="0" onClick={() => this.sum()}>
+          <span>Sum</span>
+        </Menu.Item>
+        <Menu.Divider></Menu.Divider>
+        <Menu.Item key="1">
+          <span>Recall</span>
+        </Menu.Item>
+        <Menu.Divider></Menu.Divider>
+        <Menu.Item key="3" onClick={() => this.hold()}>
+          <span>Hold</span>
+        </Menu.Item>
+      </Menu>
+    );
+
     // console.log(course);
     // console.log(billDetail);
     return (
@@ -808,9 +827,14 @@ class TableDetail extends Component {
                           </span>
                         </Col>
                         <Col span={2}>
-                          <span className="info-btn">
-                            <Icon type="info" />
-                          </span>
+                          <Dropdown overlay={menu} trigger={["click"]}>
+                            <Button
+                              // type="primary"
+                              shape="circle-outline"
+                              ghost
+                              icon="more"
+                            ></Button>
+                          </Dropdown>
                         </Col>
                       </Row>
                     </div>
@@ -955,7 +979,7 @@ class TableDetail extends Component {
                   <Col>
                     <div className="ifz-3"></div>
                   </Col>
-                  <div className={`bz ${viewSum === 1 ? `close` : ``}`}>
+                  {/* <div className={`bz ${viewSum === 1 ? `close` : ``}`}>
                     <Col style={{ marginTop: "1em" }}>
                       <div className="nvf">
                         <Form
@@ -1081,7 +1105,7 @@ class TableDetail extends Component {
                         </Form>
                       </div>
                     </Col>
-                  </div>
+                  </div> */}
                 </Row>
               </div>
             </Col>
@@ -1359,60 +1383,75 @@ class TableDetail extends Component {
         <div className="table-actions">
           <div className="ab">
             {billDetail && billDetail[0] && (
-              <div className="order-info">
-                <div className="order-item-info">
-                  <div className="title">Sub Amount: </div>
-                  <div> {billDetail[0].totalSubAmount}</div>
+              <div className="order-info-group">
+                <div className="order-info">
+                  <div className="order-item-info">
+                    <div className="title">Sub Amount: </div>
+                    <div>
+                      <CurrencyFormat
+                        value={billDetail[0].totalSubAmount}
+                        displayType={"text"}
+                        thousandSeparator={true}
+                      />
+                    </div>
+                  </div>
+                  <div className="order-item-info">
+                    <div className="title">Discount: </div>
+                    <div>
+                      <CurrencyFormat
+                        value={billDetail[0].totalDiscount}
+                        displayType={"text"}
+                        thousandSeparator={true}
+                      />
+                    </div>
+                  </div>
+                  <div className="order-item-info">
+                    <div className="title">Service Charge: </div>
+                    <div>
+                      <CurrencyFormat
+                        value={billDetail[0].totalServiceCharge}
+                        displayType={"text"}
+                        thousandSeparator={true}
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="order-item-info">
-                  <div className="title">Tax Amount: </div>
-                  <div> {billDetail[0].totalTaxAmount}</div>
-                </div>
-                <div className="order-item-info">
-                  <div className="title">Total Amount: </div>
-                  <div> {billDetail[0].totalAmount}</div>
+                <div className="order-info sl">
+                  <div className="order-item-info">
+                    <div className="title">Special Tax: </div>
+                    <div>
+                      <CurrencyFormat
+                        value={billDetail[0].totalSpecialTax}
+                        displayType={"text"}
+                        thousandSeparator={true}
+                      />
+                    </div>
+                  </div>
+                  <div className="order-item-info">
+                    <div className="title">Tax Amount: </div>
+                    <div>
+                      <CurrencyFormat
+                        value={billDetail[0].totalTaxAmount}
+                        displayType={"text"}
+                        thousandSeparator={true}
+                      />
+                    </div>
+                  </div>
+                  <div className="order-item-info total-amount">
+                    <div className="title ">Total Amount: </div>
+                    <div>
+                      <CurrencyFormat
+                        value={billDetail[0].totalAmount}
+                        displayType={"text"}
+                        thousandSeparator={true}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
-            <div className={`ab-item sl`} onClick={() => this.sum()}>
-              <div className="ab-wrap">
-                <div className="ab-icon">
-                  <Icon type="plus-square" />
-                </div>
-
-                <div className="ab-text">
-                  <p>Sum</p>
-                </div>
-              </div>
-            </div>
-            <div
-              className={`ab-item`}
-              // onClick={() => this.handleChangeQuantity()}
-            >
-              <div className="ab-wrap">
-                <div className="ab-icon">
-                  <Icon type="scissor" />
-                </div>
-
-                <div className="ab-text">
-                  <p>Recall</p>
-                </div>
-              </div>
-            </div>
-            <div className={`ab-item sr`} onClick={() => this.hold()}>
-              <div className="ab-wrap">
-                <div className="ab-icon">
-                  <Icon type="pause-circle" />
-                </div>
-
-                <div className="ab-text">
-                  <p>Hold</p>
-                </div>
-              </div>
-            </div>
-
-            <div className={`ab-item`} onClick={() => this.cancelBill()}>
+            <div className={`ab-item sl`} onClick={() => this.cancelBill()}>
               <div className="ab-wrap">
                 <div className="ab-icon">
                   <Icon type="close" />
@@ -1420,17 +1459,6 @@ class TableDetail extends Component {
 
                 <div className="ab-text">
                   <p>Cancel Bill</p>
-                </div>
-              </div>
-            </div>
-            <div className={`ab-item`}>
-              <div className="ab-wrap">
-                <div className="ab-icon">
-                  <Icon type="search" />
-                </div>
-
-                <div className="ab-text">
-                  <p>Ord Quickly</p>
                 </div>
               </div>
             </div>
@@ -1482,10 +1510,12 @@ class TableDetail extends Component {
                 </div>
               </div>
             </div>
-            <div className={`ab-item`} 
-             onClick={() =>
-                    window.location.replace(`/tableDetail2/${checkNo}`)
-                  }>
+            <div
+              className={`ab-item`}
+              onClick={() =>
+                window.location.replace(`/tableDetail2/${checkNo}`)
+              }
+            >
               <div className="ab-wrap">
                 <div className="ab-icon">
                   <Icon type="bars" />
