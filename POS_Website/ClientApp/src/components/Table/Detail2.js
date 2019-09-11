@@ -761,7 +761,8 @@ class TableDetail2 extends Component {
       itemRequests,
       isChoosingRequest,
       isOtherRequest,
-      taxServiceSelected
+      taxServiceSelected,
+      guestPay
     } = this.state;
     const {
       menus,
@@ -868,13 +869,13 @@ class TableDetail2 extends Component {
                   <Button
                     type="primary"
                     onClick={() => this.selectGuest(0)}
-                    className={selectedGuest === 0 && "active"}
+                    className={`btn-all ${selectedGuest === 0 && "active"}`}
                   >
                     ALL
                   </Button>
                   {totalGuests.map(g => (
                     <Button
-                      className={selectedGuest === g && "active"}
+                      className={`btn ${selectedGuest === g && "active"}`}
                       onClick={() => this.selectGuest(g)}
                       type="primary"
                     >
@@ -1639,21 +1640,40 @@ class TableDetail2 extends Component {
         </Modal>
 
         <Modal
-          title={`Void ${selectedRow.trnDesc}`}
+          title={`Pay Cash`}
           visible={this.state.payCashModalVisible}
           onOk={this.payCash}
           onCancel={() => this.cancelPayCashModal()}
         >
           <div>
+          <p style={{marginBottom: 10}}>
+           Total Amount: {billDetail && billDetail[0] && 
+          new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "VND",
+                minimumFractionDigits: 0
+              }).format(parseInt(billDetail[0].totalAmount))}
+          </p>
+         
             <Input
               prefix={
                 <Icon type="calculator" style={{ color: "rgba(0,0,0,.25)" }} />
               }
-              value={this.state.guestPay}
+              // value={this.state.guestPay}
+              value={new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "VND",
+                minimumFractionDigits: 0
+              }).format(guestPay)}
               style={{ marginBottom: 20 }}
               placeholder="Quantity"
             />
-
+<p>Change:  {billDetail && billDetail[0] && (parseInt(guestPay)  - parseInt(billDetail[0].totalAmount) ) > 0 && <span>{`${new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "VND",
+                minimumFractionDigits: 0
+              }).format(parseInt(guestPay)  - parseInt(billDetail[0].totalAmount))}`}</span>}</p>
+   
             <div className="keys-input ki-2">
               <div className="row">
                 <div className={`btn`} onClick={() => this.clickGuestPay(7)}>

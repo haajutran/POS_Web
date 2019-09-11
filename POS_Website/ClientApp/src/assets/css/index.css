@@ -149,7 +149,7 @@
 .info-zone {
   padding: 1em 0;
   background: #858585; /* fallback for old browsers */
-
+  overflow: auto;
   color: #fff;
   margin-bottom: 1em;
 }
@@ -175,6 +175,9 @@
   padding: 8px 0;
   border-top: solid 1px #858688;
 }
+.ifz-2 .btn-all {
+  width: 20px;
+}
 .ifz-2.non-border {
   border: none;
 }
@@ -182,10 +185,20 @@
 .ifz-2 .anticon {
   margin-right: 1em;
 }
-
+.ifz-2 .btn-all {
+  width: 50px;
+}
+.ifz-2 .btn1 {
+  width: 50px;
+}
+.ifz-2 .btn2 {
+  width: 50px;
+}
 .ifz-2 .ant-btn {
-  width: 120px;
+  /* width: 120px; */
   margin: 5px;
+  padding: 5px;
+  overflow: hidden;
 }
 
 .ifz-2 .ant-btn.active {
@@ -414,7 +427,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  line-height: 18px; /* fallback */
+  line-height: 23px; /* fallback */
   -webkit-line-clamp: 1; /* number of lines to show */
   -webkit-box-orient: vertical;
 }
@@ -469,7 +482,7 @@
   /* padding-top: 8px; */
 }
 .item-zone .order-item {
-  height: 95px;
+  height: 80px;
 }
 .item-zone .order-item-custom {
   height: 95px;
@@ -711,7 +724,7 @@
   min-height: min-content; /* needs vendor prefixes */
   display: flex;
 
-  flex-wrap: wrap;
+  overflow: auto;
   background: #4d4d4d;
 }
 .ab .ant-btn {
@@ -800,4 +813,7 @@
 }
 .order-info-group .sl {
   border-left: 1px rgb(190, 190, 190) solid;
+}
+.ant-table-placeholder {
+  z-index: unset;
 }

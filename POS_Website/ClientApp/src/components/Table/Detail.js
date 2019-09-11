@@ -37,7 +37,7 @@ class TableDetail extends Component {
       selectedCourse: 0,
       currentMenu: "",
       viewSum: 0,
-      quantity: "0",
+      quantity: "1",
       cQMVisible: false,
       aRMVisible: false,
       selectedRow: "",
@@ -179,7 +179,7 @@ class TableDetail extends Component {
     const res = await this.postItem(iCode, quantity);
     if (res === 200) {
       this.setState({
-        quantity: "0"
+        quantity: "1"
       });
       await this.requestBillDetail();
     }
@@ -921,13 +921,13 @@ class TableDetail extends Component {
                       <Button
                         type="primary"
                         onClick={() => this.selectGuest(0)}
-                        className={selectedGuest === 0 && "active"}
+                        className={`btn-all ${selectedGuest === 0 && "active"}`}
                       >
                         ALL
                       </Button>
                       {totalGuests.map(g => (
                         <Button
-                          className={selectedGuest === g && "active"}
+                          className={`btn1 ${selectedGuest === g && "active"}`}
                           onClick={() => this.selectGuest(g)}
                           type="primary"
                         >
@@ -942,14 +942,15 @@ class TableDetail extends Component {
                       <Button
                         type="primary"
                         onClick={() => this.selectCourse(0)}
-                        className={selectedCourse === 0 && "active"}
+                        className={`btn-all ${selectedCourse === 0 &&
+                          "active"}`}
                       >
                         ALL
                       </Button>
                       {course.map(c => (
                         <Button
                           onClick={() => this.selectCourse(c)}
-                          className={selectedCourse === c && "active"}
+                          className={`btn2 ${selectedCourse === c && "active"}`}
                           type="primary"
                         >
                           {c.courseName}
