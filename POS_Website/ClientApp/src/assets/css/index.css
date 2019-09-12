@@ -817,3 +817,14 @@
 .ant-table-placeholder {
   z-index: unset;
 }
+.table-item {
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+.table-item.active {
+  background: rgba(114, 244, 248, 0.466);
+}
+.table-item-content {
+  padding: 5px;
+}

@@ -5,7 +5,7 @@ import { actionCreators } from "../../store/TableDetail";
 import * as TimeServices from "../../services/TimeServices";
 import * as CurrencyFormat from "react-currency-format";
 import BackspaceIcon from "../../assets/images/backspace-icon.png";
-
+import TableMerge from "./TableMerge";
 // import { actionCreators } from "../../store/TableDetail";
 import {
   Icon,
@@ -24,7 +24,7 @@ import {
 } from "antd";
 
 const { Option } = Select;
-
+const { confirm } = Modal;
 // import moment from "moment";
 // import * as CurrencyFormat from "react-currency-format";
 
@@ -54,7 +54,8 @@ class TableDetail2 extends Component {
       payCashModalVisible: false,
       guestPay: "",
       taxServiceModalVisible: false,
-      taxServiceSelected: undefined
+      taxServiceSelected: undefined,
+      mergeModalVisible: false
     };
   }
 
@@ -127,6 +128,34 @@ class TableDetail2 extends Component {
       });
     }
   }
+
+  hideBill = async () => {
+    const that = this;
+    const { checkNo, tableDetail } = this.state;
+    console.log(this.state);
+    const data = {
+      checkNo,
+      reOpen: 0,
+      myOpenID: tableDetail.myOpenID
+    };
+    confirm({
+      title: "Are you sure hide this bill?",
+      content: (
+        <Button type="danger" onClick={() => that.sendOrderAndHideBill(data)}>
+          Send Order & Hide Bill
+        </Button>
+      ),
+      okText: "Hide Bill",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk() {
+        that.props.hideBill(data);
+      },
+      onCancel() {
+        console.log("Cancel");
+      }
+    });
+  };
 
   handleClickMenu = async (menuNo, menuName, hasSubMenu) => {
     // console.log(menuNo, menuName);
@@ -742,6 +771,32 @@ class TableDetail2 extends Component {
       this.cancelTaxServiceModal();
     }
   };
+  showMergeModal = () => {
+    this.setState({
+      mergeModalVisible: true
+    });
+  };
+  handleOkMerge = async joined => {
+    console.log(joined);
+    const { tableCode, tmpIDTableJoin } = this.state;
+    const res = await this.props.addTablesJoin(
+      tmpIDTableJoin,
+      tableCode,
+      joined
+    );
+    if (res === 200) {
+      this.requestBillDetail();
+      this.setState({
+        mergeModalVisible: false
+      });
+    }
+  };
+
+  handleCancelMerge = e => {
+    this.setState({
+      mergeModalVisible: false
+    });
+  };
 
   render() {
     const {
@@ -860,7 +915,9 @@ class TableDetail2 extends Component {
                   </div>
                 </Col>
                 <Col xl={3} className="col-custom">
-                  <Button className="hb-btn">Hide Bill</Button>
+                  <Button className="hb-btn" onClick={() => this.hideBill()}>
+                    Hide Bill
+                  </Button>
                 </Col>
               </Row>
               <div className="btnz">
@@ -929,7 +986,11 @@ class TableDetail2 extends Component {
                 </Button>
               </div>
               <div className="btn-sp">
-                <Button className="btn-d" icon="rocket">
+                <Button
+                  className="btn-d"
+                  icon="select"
+                  onClick={() => this.sendOrder()}
+                >
                   Send Order
                 </Button>
                 <Button
@@ -1086,7 +1147,9 @@ class TableDetail2 extends Component {
                 <Button className="btn-d" icon="user">
                   Select Client
                 </Button>
-                <Button className="btn-d">Merge</Button>
+                <Button className="btn-d" onClick={() => this.showMergeModal()}>
+                  Merge
+                </Button>
               </div>
               <div className="btn-sp">
                 <Button className="btn-d" icon="close-circle">
@@ -1646,15 +1709,17 @@ class TableDetail2 extends Component {
           onCancel={() => this.cancelPayCashModal()}
         >
           <div>
-          <p style={{marginBottom: 10}}>
-           Total Amount: {billDetail && billDetail[0] && 
-          new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "VND",
-                minimumFractionDigits: 0
-              }).format(parseInt(billDetail[0].totalAmount))}
-          </p>
-         
+            <p style={{ marginBottom: 10 }}>
+              Total Amount:{" "}
+              {billDetail &&
+                billDetail[0] &&
+                new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: "VND",
+                  minimumFractionDigits: 0
+                }).format(parseInt(billDetail[0].totalAmount))}
+            </p>
+
             <Input
               prefix={
                 <Icon type="calculator" style={{ color: "rgba(0,0,0,.25)" }} />
@@ -1668,12 +1733,22 @@ class TableDetail2 extends Component {
               style={{ marginBottom: 20 }}
               placeholder="Quantity"
             />
-<p>Change:  {billDetail && billDetail[0] && (parseInt(guestPay)  - parseInt(billDetail[0].totalAmount) ) > 0 && <span>{`${new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "VND",
-                minimumFractionDigits: 0
-              }).format(parseInt(guestPay)  - parseInt(billDetail[0].totalAmount))}`}</span>}</p>
-   
+            <p>
+              Change:{" "}
+              {billDetail &&
+                billDetail[0] &&
+                parseInt(guestPay) - parseInt(billDetail[0].totalAmount) >
+                  0 && (
+                  <span>{`${new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: "VND",
+                    minimumFractionDigits: 0
+                  }).format(
+                    parseInt(guestPay) - parseInt(billDetail[0].totalAmount)
+                  )}`}</span>
+                )}
+            </p>
+
             <div className="keys-input ki-2">
               <div className="row">
                 <div className={`btn`} onClick={() => this.clickGuestPay(7)}>
@@ -1741,6 +1816,19 @@ class TableDetail2 extends Component {
                 </div>
               ))}
           </div>
+        </Modal>
+        <Modal
+          className="join-modal"
+          title="Merge Tables"
+          visible={this.state.mergeModalVisible}
+          onOk={this.handleOkMerge}
+          onCancel={this.handleCancelMerge}
+        >
+          <TableMerge
+            checkNo={checkNo}
+            cancelJoin={this.handleCancelJoin}
+            okJoin={this.handleOkJoin}
+          />
         </Modal>
       </Col>
     );

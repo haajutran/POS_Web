@@ -516,7 +516,7 @@ class TableDetail extends Component {
   sendOrder = async () => {
     const { checkNo } = this.state;
     const sendOrderRes = await this.props.sendOrder(checkNo);
-    console.log(sendOrderRes);
+    // console.log(sendOrderRes);
     if (sendOrderRes === 200) {
       await this.requestBillDetail();
     }
