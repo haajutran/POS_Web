@@ -19,6 +19,16 @@ function getHeaderWithoutBearer() {
   return header;
 }
 
+export const dataToParams = data => {
+  var params = "";
+  for (let [key, value] of Object.entries(data)) {
+    if (value.toString().length > 0) {
+      params = params + key + "=" + value + "&";
+    }
+  }
+  return params;
+};
+
 export const login = async data => {
   return await axios
     .post(

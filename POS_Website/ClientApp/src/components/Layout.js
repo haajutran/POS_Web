@@ -90,8 +90,14 @@ class MainLayout extends React.Component {
             </Sider>
             <Layout>
               <Header
-                style={{ background: "#fff", padding: 0 }}
                 className="header"
+                style={{
+                  position: "fixed",
+                  zIndex: 1,
+                  width: "100%",
+                  background: "#fff",
+                  padding: 0
+                }}
               >
                 <div className="wrap-header">
                   <Icon
@@ -115,14 +121,7 @@ class MainLayout extends React.Component {
 
                 <NotiCashier />
               </Header>
-              <Content
-                style={{
-                  margin: "24px 16px",
-                  padding: 24,
-                  background: "#fff",
-                  minHeight: 280
-                }}
-              >
+              <Content className="layout-content">
                 {this.props.children}
               </Content>
             </Layout>

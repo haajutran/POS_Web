@@ -347,6 +347,16 @@ export const actionCreators = {
     } catch (e) {
       console.log(e.message);
     }
+  },
+  mergeTable: (checkNo, mergeTable) => async () => {
+    try {
+      const res = await dataServices.get(
+        `api/MergeTable/MergeTable?CurrentCheckNo=${checkNo}&NewCheckno=${mergeTable}`
+      );
+      return res;
+    } catch (e) {
+      console.log(e.message);
+    }
   }
 };
 

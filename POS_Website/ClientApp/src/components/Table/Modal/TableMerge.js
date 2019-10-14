@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import { actionCreators } from "../../store/TableMap";
+import { actionCreators } from "../../../store/TableMap";
 import {
   Icon,
   Badge,
@@ -14,7 +14,8 @@ import {
   Select,
   Modal,
   List,
-  Collapse
+  Collapse,
+  message
 } from "antd";
 
 const { Panel } = Collapse;
@@ -24,7 +25,7 @@ class TableMerge extends Component {
     super(props);
     this.state = {
       tableAreas: [],
-      merged: []
+      merged: ""
     };
   }
 
@@ -43,24 +44,31 @@ class TableMerge extends Component {
     return tableTypes.find(i => i.tableType1 === tableType).imagePickup;
   }
 
-  handleClickTable = tableCode => {
+  handleClickTable = tableCheckNo => {
     const { merged } = this.state;
-    var tableMerged = [];
-    if (merged.includes(tableCode)) {
-      const temp = [];
-      merged.map(item => {
-        if (item !== tableCode) {
-          temp.push(item);
-        }
-      });
-      tableMerged = temp;
-    } else {
-      merged.push(tableCode);
-      tableMerged = merged;
+    var temp = "";
+    if (merged !== tableCheckNo) {
+      temp = tableCheckNo;
     }
     this.setState({
-      merged: tableMerged
+      merged: temp
     });
+  };
+
+  handleOK = async () => {
+    const { merged } = this.state;
+    if (merged === "") {
+      message.error("Please choose table!");
+      return;
+    }
+    const res = await this.props.mergeTable(merged);
+    if (res.status === 200) {
+      message.success("Success.");
+      this.setState({
+        merged: ""
+      });
+      this.props.cancelMerge();
+    }
   };
 
   render() {
@@ -71,6 +79,13 @@ class TableMerge extends Component {
     console.log(tableAreas);
     return (
       <div>
+        <div className="actions">
+          <Button type="danger" onClick={() => this.props.cancelMerge()}>
+            Cancel
+          </Button>
+          <Button onClick={() => this.handleOK()}>OK</Button>
+        </div>
+
         {isLoading ? (
           <span>Loading</span>
         ) : (
@@ -96,12 +111,12 @@ class TableMerge extends Component {
                           (
                             <div
                               onClick={() =>
-                                this.handleClickTable(item.tableCode)
+                                this.handleClickTable(item.checkNo)
                               }
                             >
                               <List.Item
                                 className={`table-item ${merged.includes(
-                                  item.tableCode
+                                  item.checkNo
                                 ) && "active"}`}
                               >
                                 {item.checkNo !== "0" &&
@@ -158,7 +173,7 @@ class TableMerge extends Component {
                             </div>
                           ))
                         ) : (
-                          <div>123</div>
+                          <div>...</div>
                         )
 
                       // <List.Item>

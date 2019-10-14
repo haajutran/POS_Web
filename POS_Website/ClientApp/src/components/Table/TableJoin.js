@@ -138,59 +138,73 @@ class TableJoin extends Component {
     const { tableAreas, tableTypes, isLoading, tableCode } = this.props;
     return (
       <div>
-        <Button onClick={() => this.handleClose()}>Close</Button>
-        <Button onClick={() => this.handleOK()}>OK</Button>
-        {tableTypes && tableAreas.length > 0 ? (
-          tableAreas.map(ta => (
-            <div className="table-map-grid">
-              <h3>{ta.tableAreaName}</h3>
-              <List
-                grid={{
-                  gutter: 16,
-                  xs: 1,
-                  sm: 2,
-                  md: 4,
-                  lg: 4,
-                  xl: 6,
-                  xxl: 3
-                }}
-                dataSource={ta.tableMaps}
-                renderItem={item =>
-                  item.bkTbl === "0" && item.tableCode !== tableCode ? (
-                    <List.Item onClick={() => this.join(item.tableCode)}>
-                      <div
-                        className={
-                          joined.includes(item.tableCode) && "table-join"
-                        }
-                      >
-                        <img
-                          style={{ width: "100%" }}
-                          src={
-                            "data:image/png;base64, " + this.getImageNull(item)
-                            // tableTypes.find(
-                            //   i => i.tableType1 === item.tableType
-                            // ).imageNull
-                          }
-                          alt="img"
-                        />
+        <div className="actions">
+          <Button type="danger" onClick={() => this.handleClose()}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => this.handleOK()}
+            type="success"
+            style={{ float: "right" }}
+          >
+            OK
+          </Button>
+        </div>
 
-                        <div className="centered">
-                          <p className="table-info">
-                            <span>{item.tableCode}</span>
-                          </p>
+        <div className="content">
+          {tableTypes && tableAreas.length > 0 ? (
+            tableAreas.map(ta => (
+              <div className="table-map-grid">
+                <h3>{ta.tableAreaName}</h3>
+                <List
+                  grid={{
+                    gutter: 16,
+                    xs: 1,
+                    sm: 2,
+                    md: 4,
+                    lg: 4,
+                    xl: 6,
+                    xxl: 3
+                  }}
+                  dataSource={ta.tableMaps}
+                  renderItem={item =>
+                    item.bkTbl === "0" && item.tableCode !== tableCode ? (
+                      <List.Item onClick={() => this.join(item.tableCode)}>
+                        <div
+                          className={
+                            joined.includes(item.tableCode) && "table-join"
+                          }
+                        >
+                          <img
+                            style={{ width: "100%" }}
+                            src={
+                              "data:image/png;base64, " +
+                              this.getImageNull(item)
+                              // tableTypes.find(
+                              //   i => i.tableType1 === item.tableType
+                              // ).imageNull
+                            }
+                            alt="img"
+                          />
+
+                          <div className="centered">
+                            <p className="table-info">
+                              <span>{item.tableCode}</span>
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </List.Item>
-                  ) : (
-                    <span />
-                  )
-                }
-              />
-            </div>
-          ))
-        ) : (
-          <h3>Empty</h3>
-        )}
+                      </List.Item>
+                    ) : (
+                      <span />
+                    )
+                  }
+                />
+              </div>
+            ))
+          ) : (
+            <h3>Empty</h3>
+          )}
+        </div>
       </div>
     );
   }

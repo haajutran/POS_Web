@@ -5,7 +5,10 @@ import { actionCreators } from "../../store/TableDetail";
 import * as TimeServices from "../../services/TimeServices";
 import * as CurrencyFormat from "react-currency-format";
 import BackspaceIcon from "../../assets/images/backspace-icon.png";
-import TableMerge from "./TableMerge";
+import TableMerge from "./Modal/TableMerge";
+import Discount from "./Modal/Discount";
+import ItemDiscount from "./Modal/ItemDiscount";
+import SplitBill from "./Modal/SplitBill";
 // import { actionCreators } from "../../store/TableDetail";
 import {
   Icon,
@@ -55,7 +58,10 @@ class TableDetail2 extends Component {
       guestPay: "",
       taxServiceModalVisible: false,
       taxServiceSelected: undefined,
-      mergeModalVisible: false
+      mergeModalVisible: false,
+      discountModalVisible: false,
+      itemDiscountModalVisible: false,
+      splitBillModalVisible: false
     };
   }
 
@@ -776,25 +782,75 @@ class TableDetail2 extends Component {
       mergeModalVisible: true
     });
   };
-  handleOkMerge = async joined => {
-    console.log(joined);
-    const { tableCode, tmpIDTableJoin } = this.state;
-    const res = await this.props.addTablesJoin(
-      tmpIDTableJoin,
-      tableCode,
-      joined
-    );
-    if (res === 200) {
+
+  mergeTable = async mergeTable => {
+    const { checkNo } = this.state;
+
+    const res = await this.props.mergeTable(checkNo, mergeTable);
+    if (res.status === 200) {
+      message.success("Merged");
       this.requestBillDetail();
-      this.setState({
-        mergeModalVisible: false
-      });
     }
+
+    return res;
   };
 
-  handleCancelMerge = e => {
+  cancelMergeModal = () => {
     this.setState({
       mergeModalVisible: false
+    });
+  };
+
+  showDiscountModal = () => {
+    this.setState({
+      discountModalVisible: true
+    });
+  };
+
+  cancelDiscountModal = status => {
+    if (status === "success") {
+      this.requestBillDetail();
+    }
+    this.setState({
+      discountModalVisible: false
+    });
+  };
+
+  showItemDiscountModal = () => {
+    const { selectedRow } = this.state;
+    if (selectedRow === "") {
+      notification.open({
+        message: "Please select item first!",
+        className: "alert-noti"
+      });
+      return;
+    }
+    this.setState({
+      itemDiscountModalVisible: true
+    });
+  };
+
+  cancelItemDiscountModal = status => {
+    if (status === "success") {
+      this.requestBillDetail();
+    }
+    this.setState({
+      itemDiscountModalVisible: false
+    });
+  };
+
+  showSliptBillModal = () => {
+    this.setState({
+      splitBillModalVisible: true
+    });
+  };
+
+  cancelSliptBillModal = status => {
+    if (status === "success") {
+      this.requestBillDetail();
+    }
+    this.setState({
+      splitBillModalVisible: false
     });
   };
 
@@ -817,7 +873,10 @@ class TableDetail2 extends Component {
       isChoosingRequest,
       isOtherRequest,
       taxServiceSelected,
-      guestPay
+      guestPay,
+      discountModalVisible,
+      itemDiscountModalVisible,
+      splitBillModalVisible
     } = this.state;
     const {
       menus,
@@ -829,7 +888,7 @@ class TableDetail2 extends Component {
       taxServices
     } = this.props;
 
-    console.log(taxServices);
+    console.log(tableDetail);
     return (
       <Col>
         {tableDetail && (
@@ -1119,7 +1178,11 @@ class TableDetail2 extends Component {
               </div>
 
               <div className="btn-sp">
-                <Button className="btn-d" icon="tag">
+                <Button
+                  className="btn-d"
+                  icon="tag"
+                  onClick={() => this.showItemDiscountModal()}
+                >
                   Item Discount
                 </Button>
                 <Button className="btn-d">
@@ -1162,7 +1225,12 @@ class TableDetail2 extends Component {
                 <Button className="btn-d" icon="user-delete">
                   Cancel Client
                 </Button>
-                <Button className="btn-d">Slipt Bill</Button>
+                <Button
+                  className="btn-d"
+                  onClick={() => this.showSliptBillModal()}
+                >
+                  Split Bill
+                </Button>
               </div>
               <div className="btn-sp">
                 <Button
@@ -1175,7 +1243,12 @@ class TableDetail2 extends Component {
                 <Button className="btn-d">
                   <span>Item Voucher</span>
                 </Button>
-                <Button className="btn-d">Discount</Button>
+                <Button
+                  className="btn-d"
+                  onClick={() => this.showDiscountModal()}
+                >
+                  Discount
+                </Button>
                 <Button className="btn-d">Redeem Point</Button>
                 <Button className="btn-d">Share Table</Button>
               </div>
@@ -1309,98 +1382,6 @@ class TableDetail2 extends Component {
                           </div>
                         </div>
                       </div>
-                      {/* <div className="quantity-zone">
-                        <Input
-                          readOnly
-                          className="input"
-                          value={selectedRow.qTy}
-                        />
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("1")}
-                        >
-                          1
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("2")}
-                        >
-                          2
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("3")}
-                        >
-                          3
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("4")}
-                        >
-                          4
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("5")}
-                        >
-                          5
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("6")}
-                        >
-                          6
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("7")}
-                        >
-                          7
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("8")}
-                        >
-                          8
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("9")}
-                        >
-                          9
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.changeQuantity("0")}
-                        >
-                          0
-                        </Button>
-                        <Button
-                          shape="circle"
-                          size={"large"}
-                          onClick={() => this.clickRemoveChangeQuantity()}
-                        >
-                          <img
-                            src={BackspaceIcon}
-                            style={{
-                              width: 25,
-                              paddingRight: 2,
-                              paddingBottom: 2
-                            }}
-                          />
-                        </Button>
-                      </div>
-              */}
                     </Col>
                   </div>
                 </Row>
@@ -1821,14 +1802,61 @@ class TableDetail2 extends Component {
           className="join-modal"
           title="Merge Tables"
           visible={this.state.mergeModalVisible}
-          onOk={this.handleOkMerge}
-          onCancel={this.handleCancelMerge}
+          // onOk={this.handleOkMerge}
+          onCancel={this.cancelMergeModal}
         >
           <TableMerge
             checkNo={checkNo}
-            cancelJoin={this.handleCancelJoin}
-            okJoin={this.handleOkJoin}
+            cancelMerge={this.cancelMergeModal}
+            mergeTable={this.mergeTable}
+            okMerge={this.handleOkMerge}
           />
+        </Modal>
+        <Modal
+          title="Select Discount"
+          visible={discountModalVisible}
+          onCancel={this.cancelDiscountModal}
+          className="discount-modal"
+        >
+          {discountModalVisible && (
+            <Discount
+              checkNo={checkNo}
+              onCancel={this.cancelDiscountModal}
+              myPeriod={tableDetail.mealNo}
+            />
+          )}
+        </Modal>
+
+        <Modal
+          title="Item Discount"
+          visible={itemDiscountModalVisible}
+          onCancel={this.cancelItemDiscountModal}
+          className="item-discount-modal"
+        >
+          {itemDiscountModalVisible && (
+            <ItemDiscount
+              checkNo={checkNo}
+              item={selectedRow}
+              onCancel={this.cancelItemDiscountModal}
+              // myPeriod={tableDetail.mealNo}
+            />
+          )}
+        </Modal>
+
+        <Modal
+          title="Split Bill"
+          visible={splitBillModalVisible}
+          onCancel={this.cancelSliptBillModal}
+          className="split-bill-modal"
+        >
+          {splitBillModalVisible && (
+            <SplitBill
+              checkNo={checkNo}
+              onCancel={this.cancelSliptBillModal}
+              billDetail={billDetail}
+              // myPeriod={tableDetail.mealNo}
+            />
+          )}
         </Modal>
       </Col>
     );

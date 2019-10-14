@@ -43,6 +43,8 @@ class DetailEmpty extends Component {
     const mealPeriod = await this.props.getMealPeriod();
     const userDefineDef = await this.props.getUserDefineDef();
     const statistic = await this.props.getStatistic(userDefineDef.length);
+    const tmpIDTableJoin = await this.props.getTmpID();
+
     // console.log(statistic);
     await this.setTimeMeal(mealPeriod);
     await this.setStatistic(statistic);
@@ -51,7 +53,8 @@ class DetailEmpty extends Component {
       mealPeriod,
       userDefineDef,
       statistic,
-      tableCode
+      tableCode,
+      tmpIDTableJoin
     });
 
     this.props.form.setFieldsValue({
@@ -133,13 +136,7 @@ class DetailEmpty extends Component {
 
   showJoinModal = async () => {
     const { tableCode, tmpIDTableJoin } = this.state;
-    if (tmpIDTableJoin === "") {
-      const tmpID = await this.props.getTmpID();
-      console.log(tmpID);
-      this.setState({
-        tmpIDTableJoin: tmpID
-      });
-    }
+
     const res = await this.props.deleteTableJoin(tableCode);
     if (res === 200) {
       this.setState({
@@ -240,8 +237,12 @@ class DetailEmpty extends Component {
 
   handleCancelNewTable = async () => {
     const { tmpIDTableJoin } = this.state;
+    console.log(tmpIDTableJoin);
     const res = await this.props.cancelNewTable(tmpIDTableJoin);
     console.log(res);
+    if (res.status === 200) {
+      window.location.replace("/");
+    }
   };
 
   render() {
@@ -400,10 +401,10 @@ class DetailEmpty extends Component {
                   userDefineDef.map((item, i) => (
                     <div className="sts-s">
                       <Row>
-                        <Col span={4}>
+                        <Col span={6}>
                           <span className="sts-t">{item.content}</span>
                         </Col>
-                        <Col span={20}>
+                        <Col span={18}>
                           <Select
                             value={statisticSelected[i].stsName}
                             style={{ width: 120 }}
@@ -431,6 +432,11 @@ class DetailEmpty extends Component {
                 <div className="header">
                   <Icon className="icon" type="user" />
                   Client Information
+                  <Icon
+                    type="search"
+                    className="header-icon"
+                    onClick={this.showClientModal}
+                  ></Icon>
                 </div>
                 <div className="body" style={{ textAlign: "center" }}>
                   {currentClient && (
@@ -439,14 +445,6 @@ class DetailEmpty extends Component {
                       {currentClient.sClientName}
                     </p>
                   )}
-                  <Button
-                    onClick={this.showClientModal}
-                    type="primary"
-                    icon="search"
-                    ghost
-                  >
-                    Select Client
-                  </Button>
                 </div>
               </div>
             </Col>

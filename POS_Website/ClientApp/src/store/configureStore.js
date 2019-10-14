@@ -7,6 +7,10 @@ import * as TableMap from "./TableMap";
 import * as NotiCashier from "./NotiCashier";
 import * as DetailEmpty from "./DetailEmpty";
 import * as TableDetail from "./TableDetail";
+
+import * as Discount from "./Modal/Discount";
+import * as SplitBill from "./Modal/SplitBill";
+
 import { Table } from "antd";
 
 export default function configureStore(history, initialState) {
@@ -15,7 +19,9 @@ export default function configureStore(history, initialState) {
     tableMap: TableMap.reducer,
     detailEmpty: DetailEmpty.reducer,
     notiCashier: NotiCashier.reducer,
-    tableDetail: TableDetail.reducer
+    tableDetail: TableDetail.reducer,
+    discount: Discount.reducer,
+    splitBill: SplitBill.reducer
   };
 
   const middleware = [thunk, routerMiddleware(history)];
