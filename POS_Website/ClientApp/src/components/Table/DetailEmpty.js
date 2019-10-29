@@ -213,6 +213,7 @@ class DetailEmpty extends Component {
       ClientVAT: currentClient.clientVAT
     };
     // console.log(data);
+    console.log(data);
     const res = await this.props.okNewTable(data);
     if (res.status === 200) {
       console.log(res);

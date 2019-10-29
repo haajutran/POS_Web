@@ -13,22 +13,19 @@ import {
   Modal,
   Button,
   Icon,
+  Table,
   Collapse
 } from "antd";
 
 const { Panel } = Collapse;
 
-function warning() {
-  Modal.warning({
-    title: "Alert!",
-    content: "The current date and the date on the system do not match!"
-  });
-}
-var isHolding = 0;
 class TableMap extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      selectBillModalVisible: false,
+      bills: []
+    };
   }
 
   async componentDidMount() {
@@ -64,17 +61,50 @@ class TableMap extends Component {
     return res;
   }
 
+  checkTable = table => {
+    const { tableAreas } = this.props;
+    const tableArea = tableAreas.find(
+      ta => ta.tableArea1 + "" === table.tableArea + ""
+    );
+    const tableBills = tableArea.tableMaps.filter(
+      t => t.tableCode === table.tableCode
+    );
+    if (tableBills.length > 1) {
+      this.setState({
+        bills: tableBills
+      });
+      this.showSelectBillModal();
+    } else {
+      window.location.href = `/tableDetail2/${table.checkNo}`;
+    }
+  };
+
+  showSelectBillModal = () => {
+    this.setState({
+      selectBillModalVisible: true
+    });
+  };
+
+  hideSelectBillModal = () => {
+    this.setState({
+      selectBillModalVisible: false,
+      bills: []
+    });
+  };
   renderTablePickup(item) {
     // const aaa = this.checkTableHold(item.checkNo)
 
     return (
-      <Link to={`/tableDetail2/${item.checkNo}`}>
+      <div
+        // to={`/tableDetail2/${item.checkNo}`}
+        onClick={() => this.checkTable(item)}
+        className="picked-up-table"
+      >
         <img
           style={{ width: "100%" }}
           src={"data:image/png;base64, " + this.getImagePickup(item.tableType)}
           alt="img"
         />
-
         <div className="centered">
           <p>
             <span className="table-code"> {item.tableCode}</span>
@@ -103,9 +133,13 @@ class TableMap extends Component {
             <Icon type="pause-circle" className={`holding`} />
           )}
         </div>
-      </Link>
+      </div>
     );
   }
+
+  selectBill = bill => {
+    window.location.href = `/tableDetail2/${bill.checkNo}`;
+  };
 
   render() {
     const {
@@ -116,6 +150,9 @@ class TableMap extends Component {
     } = this.props;
 
     var displayed = [];
+
+    const { bills } = this.state;
+
     return (
       <div>
         <h2>Table Map</h2>
@@ -176,7 +213,6 @@ class TableMap extends Component {
                                       <Link
                                         to={`/detailempty/${item.tableCode}`}
                                       >
-                                        {console.log(ta.tableMaps)}
                                         <img
                                           style={{ width: "100%" }}
                                           src={
@@ -249,10 +285,51 @@ class TableMap extends Component {
             )}
           </div>
         )}
+        <Modal
+          title="Modal"
+          visible={this.state.selectBillModalVisible}
+          onOk={this.hideSelectBillModal}
+          onCancel={this.hideSelectBillModal}
+          className="select-bill-modal"
+        >
+          <Table
+            dataSource={bills}
+            columns={columns}
+            onRowClick={bill => this.selectBill(bill)}
+          />
+        </Modal>
       </div>
     );
   }
 }
+
+const columns = [
+  {
+    title: "Sub",
+    dataIndex: "subTableNo",
+    key: "subTableNo"
+  },
+  {
+    title: "Check No",
+    dataIndex: "checkNo",
+    key: "checkNo"
+  },
+  {
+    title: "Amount",
+    dataIndex: "amount",
+    key: "amount"
+  },
+  {
+    title: "Adult",
+    dataIndex: "tGuest",
+    key: "tGuest"
+  },
+  {
+    title: "Child",
+    dataIndex: "tChild",
+    key: "tChild"
+  }
+];
 
 export default connect(
   state => state.tableMap,

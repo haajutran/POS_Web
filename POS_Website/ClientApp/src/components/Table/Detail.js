@@ -377,14 +377,14 @@ class TableDetail extends Component {
 
   selectCourse = async course => {
     console.log(course);
-    await this.setState({
+    this.setState({
       selectedCourse: course
     });
     await this.requestBillDetail();
   };
 
   sum = async () => {
-    await this.setState({
+    this.setState({
       viewSum: this.state.viewSum === 0 ? 1 : 0,
       selectedCourse: 0
     });
@@ -809,7 +809,7 @@ class TableDetail extends Component {
       <div className="detail-page">
         {tableDetail && (
           <Row gutter={20}>
-            <Col xs={24} md={14} ls={14} xl={10}>
+            <Col xs={24} md={10} ls={10} xl={10}>
               <div className="info-zone">
                 <Row>
                   <Col>
@@ -1110,100 +1110,9 @@ class TableDetail extends Component {
                 </Row>
               </div>
             </Col>
-            <Col xs={24} xl={14}>
+            <Col xs={24} md={14} ls={14} xl={14}>
               <div className="order-zone">
                 <Row>
-                  <Col>
-                    {/* <div className="oib">
-                      <Row gutter={16}>
-                        <Col xl={20}>
-                          <Row gutter={16}>
-                            <Col xl={14} className="seperate">
-                              <Row>
-                                <Col span={10}>
-                                  <b className="title">Open Bill</b>
-                                </Col>
-                                <Col span={14}>
-                                  <span className="value">
-                                    {moment(
-                                      new Date(tableDetail.openTime)
-                                    ).format("DD/MM/YYYY HH:MM")}
-                                  </span>
-                                </Col>
-                              </Row>
-                            </Col>
-                            <Col xl={10} className="seperate">
-                              <Row>
-                                <Col span={10}>
-                                  <b className="title">Table</b>
-                                </Col>
-                                <Col span={14}>
-                                  <span className="value">
-                                    {tableDetail.tableNo}
-                                  </span>
-                                </Col>
-                              </Row>
-                            </Col>
-                            <Col xl={14} className="seperate">
-                              <Row>
-                                <Col span={10}>
-                                  <b className="title">Open By</b>
-                                </Col>
-                                <Col span={14}>
-                                  <span className="value">
-                                    {tableDetail.openBy}
-                                  </span>
-                                </Col>
-                              </Row>
-                            </Col>
-                            <Col xl={10} className="seperate">
-                              <Row>
-                                <Col span={10}>
-                                  <b className="title">Adult</b>
-                                </Col>
-                                <Col span={14}>
-                                  <span className="value">
-                                    {tableDetail.adult}
-                                  </span>
-                                </Col>
-                              </Row>
-                            </Col>
-                            <Col xl={14} className="seperate">
-                              <Row>
-                                <Col span={10}>
-                                  <b className="title">Client</b>
-                                </Col>
-                                <Col span={14}>
-                                  <span className="value">
-                                    {tableDetail.clientName}
-                                  </span>
-                                </Col>
-                              </Row>
-                            </Col>
-                            <Col xl={10} className="seperate">
-                              <Row>
-                                <Col span={10}>
-                                  <b className="title">Child</b>
-                                </Col>
-                                <Col span={14}>
-                                  <span className="value">
-                                    {tableDetail.child}
-                                  </span>
-                                </Col>
-                              </Row>
-                            </Col>
-                          </Row>
-                        </Col>
-                        <Col xl={4} className="hd-btn">
-                          <Button
-                            className="hb-btn"
-                            title="Hide Bill"
-                            icon="check"
-                          />
-                        </Col>
-                      </Row>
-                    </div> */}
-                  </Col>
                   <Col>
                     <div className="oz">
                       <div className="menus-zone">
@@ -1255,14 +1164,10 @@ class TableDetail extends Component {
                           ))}
                         </Breadcrumb>
                       </div>
-                      <div className="item-zone">
-                        {mainMenus && mainMenus.length > 0 && (
-                          <div className="quantity-zone">
-                            <Input
-                              readOnly
-                              className="input"
-                              value={quantity}
-                            />
+                      {mainMenus && mainMenus.length > 0 && (
+                        <div className="quantity-zone">
+                          <Input readOnly className="input" value={quantity} />
+                          <div>
                             <Button
                               shape="circle"
                               size={"large"}
@@ -1348,7 +1253,9 @@ class TableDetail extends Component {
                               />
                             </Button>
                           </div>
-                        )}
+                        </div>
+                      )}
+                      <div className="item-zone">
                         {mainMenus.map(mainMenu => (
                           <div
                             className="order-item main-item "

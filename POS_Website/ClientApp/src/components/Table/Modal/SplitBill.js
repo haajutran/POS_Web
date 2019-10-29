@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import { actionCreators } from "../../../store/Modal/Discount";
 import {
   Icon,
   Badge,
@@ -35,11 +34,12 @@ class ItemDiscount extends Component {
 
   handleCancel = status => {
     this.props.onCancel(status);
+    this.props.requestBillDetail();
   };
 
   render() {
     const { selectedSection } = this.state;
-    const { billDetail, checkNo } = this.props;
+    const { billDetail, checkNo, guestNumber } = this.props;
     console.log(billDetail);
     return (
       <div className="split-bill">
@@ -79,7 +79,9 @@ class ItemDiscount extends Component {
           <SplitBillManual
             checkNo={checkNo}
             handleCancel={this.handleCancel}
+            billDetail={billDetail}
             totalAmount={billDetail[0].totalAmount}
+            guestNumber={guestNumber}
           />
         )}
       </div>
@@ -87,7 +89,4 @@ class ItemDiscount extends Component {
   }
 }
 
-export default connect(
-  state => state.discount,
-  dispatch => bindActionCreators(actionCreators, dispatch)
-)(ItemDiscount);
+export default ItemDiscount;

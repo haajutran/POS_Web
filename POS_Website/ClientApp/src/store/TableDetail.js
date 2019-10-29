@@ -80,6 +80,7 @@ export const actionCreators = {
       const res = await dataServices.get(
         `api/BillInfo/GetBillDetail?ViewSum=${viewSum}&SelectedGuest=${selectedGuest}&CheckNo=${checkNo}&SelectedCourse=${selectedCourse}`
       );
+      console.log(res);
       if (res.status === 200) {
         dispatch({ type: receiveBillDetailType, billDetail: res.data });
       }

@@ -81,6 +81,7 @@ export const post = async (url, data) => {
     }
     return res;
   } catch (e) {
+    console.log(e.message);
     return e.response;
   }
 };

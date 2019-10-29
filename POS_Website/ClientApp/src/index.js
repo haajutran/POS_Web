@@ -1,6 +1,7 @@
 import "antd/dist/antd.css";
 import "./assets/css/login.css";
 import "./assets/css/index.css";
+import "./assets/scss/custom.scss";
 
 // import "froala-editor/js/froala_editor.pkgd.min.js";
 // import "froala-editor/css/froala_style.min.css";

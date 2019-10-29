@@ -840,9 +840,22 @@ class TableDetail2 extends Component {
   };
 
   showSliptBillModal = () => {
-    this.setState({
-      splitBillModalVisible: true
+    const { billDetail } = this.props;
+    var isValid = true;
+    billDetail.forEach(item => {
+      if (isValid) {
+        if (item.baseSub < 0) {
+          isValid = false;
+          message.warn("Bill has discount!");
+          return false;
+        }
+      }
     });
+    if (isValid) {
+      this.setState({
+        splitBillModalVisible: true
+      });
+    }
   };
 
   cancelSliptBillModal = status => {
@@ -888,7 +901,7 @@ class TableDetail2 extends Component {
       taxServices
     } = this.props;
 
-    console.log(tableDetail);
+    // console.log(tableDetail);
     return (
       <Col>
         {tableDetail && (
@@ -1854,6 +1867,10 @@ class TableDetail2 extends Component {
               checkNo={checkNo}
               onCancel={this.cancelSliptBillModal}
               billDetail={billDetail}
+              guestNumber={
+                parseInt(tableDetail.adult) + parseInt(tableDetail.child)
+              }
+              requestBillDetail={this.requestBillDetail}
               // myPeriod={tableDetail.mealNo}
             />
           )}

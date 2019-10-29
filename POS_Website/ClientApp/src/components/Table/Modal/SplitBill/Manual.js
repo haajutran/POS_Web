@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { actionCreators } from "../../../../store/Modal/SplitBill";
+
 import {
   Icon,
   Badge,
@@ -15,23 +16,11 @@ import {
   Modal,
   message
 } from "antd";
+import TableJoin from "../../TableJoin";
+
+import * as CurrencyFormat from "react-currency-format";
 
 const { TextArea } = Input;
-const columns = [
-  {
-    title: "Qty",
-    width: 50,
-    dataIndex: "name",
-    key: "name"
-  },
-  { title: "Item Name", dataIndex: "age", key: "age" },
-  {
-    title: "Amount",
-    fixed: "right",
-    width: 100,
-    render: () => <span>123,123</span>
-  }
-];
 
 const data = [];
 for (let i = 0; i < 100; i++) {
@@ -49,9 +38,74 @@ class SplitBillAmount extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      number: "0"
+      number: "0",
+      guest1Number: 0,
+      guestArr: [],
+      newCheckNo: "",
+      billDetail: [],
+      billDetailTmp: [],
+      quantity: 0,
+      joinModalVisible: false
     };
   }
+
+  async componentDidMount() {
+    await this.refreshData();
+    this.setState({
+      guest1Number: this.props.guestNumber
+    });
+    var guestArr = [];
+    for (var i = 0; i < this.props.guestNumber; i++) {
+      guestArr.push(i + 1);
+    }
+    this.setState({
+      guestArr
+    });
+  }
+
+  componentWillUnmount() {
+    const dataNewBill = {
+      SelectedGuest: "0",
+      CheckNo: "-1",
+      SelectedCourse: "0"
+    };
+    console.log("out");
+    this.props.requestNewBillDetail(dataNewBill);
+  }
+
+  refreshData = async () => {
+    const { newCheckNo } = this.state;
+    const { checkNo } = this.props;
+    const dataNewBill = {
+      SelectedGuest: "0",
+      CheckNo: newCheckNo,
+      SelectedCourse: "0"
+    };
+    const dataSplitBill = {
+      SelectedGuest: "0",
+      CheckNo: checkNo,
+      SelectedCourse: "0"
+    };
+    await this.props.requestNewBillDetail(dataNewBill);
+    await this.props.requestSplitBillDetail(dataSplitBill);
+  };
+
+  showJoinModal = async () => {
+    // const { tableCode, tmpIDTableJoin } = this.state;
+
+    // const res = await this.props.deleteTableJoin(tableCode);
+    // if (res === 200) {
+    this.setState({
+      joinModalVisible: true
+    });
+    // }
+  };
+
+  cancelJoinModal = e => {
+    this.setState({
+      joinModalVisible: false
+    });
+  };
 
   handleSelect = input => {
     const { number } = this.state;
@@ -110,24 +164,111 @@ class SplitBillAmount extends Component {
   };
 
   handleOK = async () => {
+    this.props.handleCancel("");
+  };
+
+  addGuest1 = () => {
+    const { guest1Number } = this.state;
+
+    this.setState({
+      guest1Number: guest1Number + 1
+    });
+    this.setGuestArr();
+  };
+
+  minusGuest1 = () => {
+    const { guest1Number } = this.state;
+
+    if (guest1Number === 1) {
+      return;
+    }
+    this.setState({
+      guest1Number: guest1Number - 1
+    });
+    this.setGuestArr();
+  };
+
+  setGuestArr = () => {
+    const { guest1Number } = this.state;
+
+    var guestArr = [];
+    for (var i = 0; i < guest1Number; i++) {
+      guestArr.push(i + 1);
+    }
+    this.setState({
+      guestArr
+    });
+  };
+
+  selectRow = record => {
+    console.log(record);
+    this.setState({
+      selectedRow: record,
+      quantity: record.qTy
+    });
+  };
+
+  createNewCheck = async () => {
     const { checkNo } = this.props;
-    const { number } = this.state;
-    const data = {
-      CheckNo: checkNo,
-      SliptAmount: number
-    };
-    const res = await this.props.splitAmount(data);
+    const res = await this.props.createNewCheck(checkNo);
     console.log(res);
     if (res.status === 200) {
-      message.success("Success.");
-      this.props.handleCancel("success");
+      if (res.data[0] && res.data[0].resuilt === 0) {
+        const newCheckNo = res.data[0].newCheckNo;
+        this.setState({ newCheckNo });
+      }
     }
   };
 
+  moveToRight = async () => {
+    const { selectedRow, quantity, newCheckNo } = this.state;
+    const data = {
+      QtyTranfer: quantity,
+      OrgTrnSeq: selectedRow.trnSeq,
+      NewCheckNo: newCheckNo
+    };
+    const res = await this.props.splitTransfer(data);
+    console.log(res);
+    if (res.status === 200) {
+      this.refreshData();
+      // this.props.requestBillDetail();
+      this.setState({
+        selectedRow: undefined,
+        quantity: 0
+      });
+    }
+    // var temp = [];
+    // console.log(selectedRow);
+    // billDetailTmp.push(selectedRow);
+    // billDetail.forEach(item => {
+    //   if (item.trnSeq !== selectedRow.trnSeq) {
+    //     temp.push(item);
+    //   }
+    // });
+    // this.setState({
+    //   billDetail: temp,
+    //   billDetailTmp,
+    //   selectedRow: undefined
+    // });
+  };
+
+  changeQuantity = e => {
+    this.setState({
+      quantity: e.target.value
+    });
+  };
+
   render() {
-    const { number } = this.state;
-    const { totalAmount } = this.props;
-    // console.log(item);
+    const {
+      number,
+      guest1Number,
+      guestArr,
+      selectedRow,
+      newCheckNo,
+
+      quantity
+    } = this.state;
+    const { newBillDetail, checkNo, splitBillDetail } = this.props;
     return (
       <div>
         <div className="sb-inputs">
@@ -172,11 +313,17 @@ class SplitBillAmount extends Component {
           <Row>
             <Col span={11}>
               <div className="manual-left-top">
-                <div className="s1">Current Check: 33000610</div>
-                <div className="manual-btn s2">
+                <div className="s1">Current Check: {checkNo}</div>
+                <div
+                  className="manual-btn s2"
+                  onClick={() => this.minusGuest1()}
+                >
                   <Icon type="user-delete" />
                 </div>
-                <div className="manual-btn  s3">
+                <div
+                  className="manual-btn  s3"
+                  onClick={() => this.addGuest1()}
+                >
                   <Icon type="user-add" />
                 </div>
               </div>
@@ -184,35 +331,73 @@ class SplitBillAmount extends Component {
                 <div className="manual-btn active">
                   <Icon type="appstore" theme="filled" />
                 </div>
-                <div className="manual-btn guest">
-                  <span>#1</span>
+                <div className="guest-zone">
+                  {guestArr.length > 0 &&
+                    guestArr.map(item => (
+                      <div className="manual-btn guest">
+                        <span>#{item}</span>
+                      </div>
+                    ))}
                 </div>
               </div>
               <div className="manual-left-middle2">
                 <Table
+                  className="bill-detail-table"
+                  onRow={record => ({
+                    onClick: () => this.selectRow(record)
+                    // this.handleChangeQuantity(record)
+                  })}
+                  rowClassName={(record, index) =>
+                    selectedRow
+                      ? record.o === selectedRow.o
+                        ? "selected-row"
+                        : ""
+                      : ""
+                  }
+                  dataSource={splitBillDetail}
                   columns={columns}
-                  dataSource={data}
-                  scroll={{ x: 100, y: 230 }}
-                  pagination={false}
+                  size="default"
+                  // scroll={{ y: 340 }}
+                  // bordered
                 />
               </div>
             </Col>
             <Col span={2}>
               <div className="manual-middle">
-                <div className="btn">
+                <div className={`btn`} onClick={() => this.createNewCheck()}>
+                  New
+                </div>
+
+                <div
+                  className={`btn ${
+                    !selectedRow || newCheckNo === "" ? "disabled" : ""
+                  }`}
+                  onClick={() => this.moveToRight()}
+                >
                   <Icon type="right" />
                 </div>
-                <div className="btn">
+
+                <div
+                  className={`btn ${
+                    !selectedRow || newCheckNo === "" ? "disabled" : ""
+                  }`}
+                >
                   <Icon type="left" />
                 </div>
-                <div className="btn">
-                  <Icon type="home" />
+                <div
+                  className={`btn quantity ${!selectedRow ? "disabled" : ""}`}
+                >
+                  {/* <span>{quantity}</span> */}
+                  <input value={quantity} onChange={this.changeQuantity} />
+                </div>
+                <div className={`btn`} onClick={() => this.showJoinModal()}>
+                  Other
                 </div>
               </div>
             </Col>
             <Col span={11}>
               <div className="manual-left-top">
-                <div className="s1"></div>
+                <div className="s1">New Check: {newCheckNo}</div>
                 <div className="manual-btn s2">
                   <Icon type="user-delete" />
                 </div>
@@ -230,10 +415,21 @@ class SplitBillAmount extends Component {
               </div>
               <div className="manual-left-middle2">
                 <Table
+                  className="bill-detail-table"
+                  onRow={record => ({
+                    onClick: () => this.selectRow(record)
+                    // this.handleChangeQuantity(record)
+                  })}
+                  rowClassName={(record, index) =>
+                    selectedRow
+                      ? record.o === selectedRow.o
+                        ? "selected-row"
+                        : ""
+                      : ""
+                  }
+                  dataSource={newBillDetail}
                   columns={columns}
-                  dataSource={data2}
-                  scroll={{ x: 100, y: 230 }}
-                  pagination={false}
+                  size="default"
                 />
               </div>
             </Col>
@@ -255,10 +451,131 @@ class SplitBillAmount extends Component {
             OK
           </Button>
         </div>
+        <Modal
+          className="join-modal"
+          title="Join Tables"
+          visible={this.state.joinModalVisible}
+          onOk={this.handleOkJoin}
+          onCancel={this.cancelJoinModal}
+        >
+          <TableJoin
+            tableCode={checkNo}
+            cancelJoin={this.cancelJoinModal}
+            okJoin={this.handleOkJoin}
+          />
+        </Modal>
       </div>
     );
   }
 }
+
+const columns = [
+  {
+    title: "No",
+    dataIndex: "o",
+    key: "o",
+    render: (value, row) => {
+      return row.description.trim() === "C.Guide" ? (
+        <span className="req" />
+      ) : (
+        <span
+          className={`${row.pToOrder === 1 ? "green" : ""}
+        ${row.ptoCheck === 1 ? "red" : ""}`}
+        >
+          {value}
+        </span>
+      );
+    }
+  },
+  {
+    title: "Item Name",
+    dataIndex: "trnDesc",
+    key: "trnDesc",
+    width: 180,
+    render: (value, row) => {
+      return row.description.trim() === "C.Guide" ? (
+        <span className="req">{value}</span>
+      ) : (
+        <span
+          className={`${row.pToOrder === 1 ? "green" : ""}
+        ${row.ptoCheck === 1 ? "red" : ""}`}
+        >
+          {value}
+        </span>
+      );
+    }
+  },
+  {
+    title: "QTy",
+    dataIndex: "trnQTy",
+    key: "trnQTy",
+    render: (value, row) => {
+      return row.description.trim() === "C.Guide" ? (
+        <span className="req" />
+      ) : (
+        <span
+          className={`${row.pToOrder === 1 ? "green" : ""}
+        ${row.ptoCheck === 1 ? "red" : ""}`}
+        >
+          {value}
+        </span>
+      );
+    }
+  },
+  {
+    title: "Sub Amount",
+    dataIndex: "baseSub",
+    key: "baseSub",
+    render: (value, row) => {
+      return row.description.trim() === "C.Guide" ? (
+        <span className="req" />
+      ) : (
+        <CurrencyFormat
+          className={`${row.pToOrder === 1 ? "green" : ""} 
+      ${row.ptoCheck === 1 ? "red" : ""}`}
+          value={value}
+          displayType={"text"}
+          thousandSeparator={true}
+        />
+      );
+    }
+  },
+  {
+    title: "Amount",
+    dataIndex: "baseTrn",
+    key: "baseTrn",
+    render: (value, row) => {
+      return row.description.trim() === "C.Guide" ? (
+        <span className="req" />
+      ) : (
+        <CurrencyFormat
+          className={`${row.pToOrder === 1 ? "green" : ""} 
+      ${row.ptoCheck === 1 ? "red" : ""}`}
+          value={value}
+          displayType={"text"}
+          thousandSeparator={true}
+        />
+      );
+    }
+  },
+  {
+    title: "By",
+    dataIndex: "cashier",
+    key: "cashier",
+    render: (value, row) => {
+      return row.description.trim() === "C.Guide" ? (
+        <span className="req" />
+      ) : (
+        <span
+          className={`${row.pToOrder === 1 ? "green" : ""}
+        ${row.ptoCheck === 1 ? "red" : ""}`}
+        >
+          {value}
+        </span>
+      );
+    }
+  }
+];
 
 export default connect(
   state => state.splitBill,
