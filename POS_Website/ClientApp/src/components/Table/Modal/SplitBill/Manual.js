@@ -16,7 +16,7 @@ import {
   Modal,
   message
 } from "antd";
-import TableJoin from "../../TableJoin";
+import OrderedTable from "../../OrderedTable";
 
 import * as CurrencyFormat from "react-currency-format";
 
@@ -45,7 +45,7 @@ class SplitBillAmount extends Component {
       billDetail: [],
       billDetailTmp: [],
       quantity: 0,
-      joinModalVisible: false
+      otherModalVisible: false
     };
   }
 
@@ -90,20 +90,20 @@ class SplitBillAmount extends Component {
     await this.props.requestSplitBillDetail(dataSplitBill);
   };
 
-  showJoinModal = async () => {
-    // const { tableCode, tmpIDTableJoin } = this.state;
+  showOtherModal = async () => {
+    // const { tableCode, tmpIDOrderedTable } = this.state;
 
-    // const res = await this.props.deleteTableJoin(tableCode);
+    // const res = await this.props.deleteOrderedTable(tableCode);
     // if (res === 200) {
     this.setState({
-      joinModalVisible: true
+      otherModalVisible: true
     });
     // }
   };
 
-  cancelJoinModal = e => {
+  cancelOtherModal = e => {
     this.setState({
-      joinModalVisible: false
+      otherModalVisible: false
     });
   };
 
@@ -390,7 +390,7 @@ class SplitBillAmount extends Component {
                   {/* <span>{quantity}</span> */}
                   <input value={quantity} onChange={this.changeQuantity} />
                 </div>
-                <div className={`btn`} onClick={() => this.showJoinModal()}>
+                <div className={`btn `} onClick={() => this.showOtherModal()}>
                   Other
                 </div>
               </div>
@@ -454,13 +454,13 @@ class SplitBillAmount extends Component {
         <Modal
           className="join-modal"
           title="Join Tables"
-          visible={this.state.joinModalVisible}
+          visible={this.state.otherModalVisible}
           onOk={this.handleOkJoin}
-          onCancel={this.cancelJoinModal}
+          onCancel={this.cancelOtherModal}
         >
-          <TableJoin
+          <OrderedTable
             tableCode={checkNo}
-            cancelJoin={this.cancelJoinModal}
+            cancelJoin={this.cancelOtherModal}
             okJoin={this.handleOkJoin}
           />
         </Modal>

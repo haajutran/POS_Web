@@ -18,12 +18,15 @@ import {
 
 const { TextArea, Search } = Input;
 
-class TableJoin extends Component {
+class OrderedTable extends Component {
   constructor(props) {
     super(props);
     this.state = {
       tableAreas: [],
-      joined: []
+      choseTable: "",
+      selectBillModalVisible: false,
+      bills: [],
+      selectedBill: ""
     };
   }
 
@@ -47,94 +50,68 @@ class TableJoin extends Component {
     const { tableTypes } = this.props;
     return tableTypes.find(i => i.tableType1 === tableType).imagePickup;
   }
-  async checkTableHold(checkNo) {
-    const res = await this.props.checkTableHold(checkNo);
-    return res;
-  }
 
-  componentDidUpdate() {
-    const { tableAreas } = this.state;
-    if (tableAreas.length === 0) {
-      this.fetchData();
-    }
-  }
-
-  renderTablePickup(item) {
-    // const aaa = this.checkTableHold(item.checkNo)
-
-    return (
-      <div>
-        <img
-          style={{ width: "100%" }}
-          src={"data:image/png;base64, " + this.getImagePickup(item.tableType)}
-          alt="img"
-        />
-
-        <div className="centered">
-          <p>
-            {item.tableCode}
-            {item.tableJoin}
-          </p>
-          <p className="table-info">
-            <span>
-              {item.tGuest}/{item.tChild}
-            </span>
-            |<span>({item.tSubtable})</span>
-          </p>
-          <p>{item.amount}</p>
-          <p>{item.openTime}</p>
-          <p
-            className={`status ${
-              item.lastChgTime <= 45
-                ? "success"
-                : item.lastChgTime <= 80
-                ? "warning"
-                : "danger"
-            }`}
-          />
-
-          {item.tableHold > 0 && (
-            <Icon type="pause-circle" className={`holding`} />
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  join = tableCode => {
-    const { tableAreas, joined } = this.state;
-    if (joined.includes(tableCode)) {
-      joined.splice(joined.indexOf(tableCode), 1);
-    } else {
-      joined.push(tableCode);
-    }
+  chooseTable = table => {
     this.setState({
-      joined
+      choseTable: table.tableCode
     });
-    // var table = tableAreas[tIndex].tableMaps[taIndex];
-
-    // table["join"] = !table["join"];
-    // this.setState({
-    //   tableAreas
-    // });
+    this.checkTable(table);
   };
 
   handleClose = () => {
     this.setState({
       tableAreas: [],
-      joined: []
+      choseTable: ""
     });
     this.props.cancelJoin();
   };
 
   handleOK = () => {
-    const { joined } = this.state;
-    this.props.okJoin(joined);
+    const { choseTable } = this.state;
+    console.log(choseTable);
+  };
+
+  checkTable = table => {
+    const { tableAreas } = this.props;
+    const tableArea = tableAreas.find(
+      ta => ta.tableArea1 + "" === table.tableArea + ""
+    );
+    const tableBills = tableArea.tableMaps.filter(
+      t => t.tableCode === table.tableCode
+    );
+    if (tableBills.length > 1) {
+      this.setState({
+        bills: tableBills
+      });
+      this.showSelectBillModal();
+    } else {
+      alert("asdsad");
+    }
+  };
+
+  showSelectBillModal = () => {
+    this.setState({
+      selectBillModalVisible: true
+    });
+  };
+
+  hideSelectBillModal = () => {
+    this.setState({
+      selectBillModalVisible: false,
+      bills: []
+    });
+  };
+
+  selectBill = bill => {
+    this.setState({
+      selectedBill: bill
+    });
   };
 
   render() {
     // console.log(statisticSelected);
-    const { joined } = this.state;
+    const { choseTable, bills, selectedBill } = this.state;
+    console.log(selectedBill);
     const { tableAreas, tableTypes, isLoading, tableCode } = this.props;
     return (
       <div>
@@ -168,11 +145,14 @@ class TableJoin extends Component {
                   }}
                   dataSource={ta.tableMaps}
                   renderItem={item =>
-                    item.bkTbl === "0" && item.tableCode !== tableCode ? (
-                      <List.Item onClick={() => this.join(item.tableCode)}>
+                    item.bkTbl === "0" &&
+                    item.subTableNo === "1" &&
+                    item.checkNo !== "0" &&
+                    item.tableCode !== tableCode ? (
+                      <List.Item onClick={() => this.chooseTable(item)}>
                         <div
                           className={
-                            joined.includes(item.tableCode) && "table-join"
+                            choseTable === item.tableCode && "table-join"
                           }
                         >
                           <img
@@ -205,14 +185,58 @@ class TableJoin extends Component {
             <h3>Empty</h3>
           )}
         </div>
+        <Modal
+          title="Modal"
+          visible={this.state.selectBillModalVisible}
+          onOk={this.hideSelectBillModal}
+          onCancel={this.hideSelectBillModal}
+          className="select-bill-modal"
+        >
+          <Table
+            dataSource={bills}
+            columns={columns}
+            onRowClick={bill => this.selectBill(bill)}
+            rowClassName={(record, index) =>
+              record.checkNo === selectedBill.checkNo ? "selected-bill" : ""
+            }
+          />
+        </Modal>
       </div>
     );
   }
 }
 
-const TJ = Form.create({ name: "tj" })(TableJoin);
+const columns = [
+  {
+    title: "Sub",
+    dataIndex: "subTableNo",
+    key: "subTableNo"
+  },
+  {
+    title: "Check No",
+    dataIndex: "checkNo",
+    key: "checkNo"
+  },
+  {
+    title: "Amount",
+    dataIndex: "amount",
+    key: "amount"
+  },
+  {
+    title: "Adult",
+    dataIndex: "tGuest",
+    key: "tGuest"
+  },
+  {
+    title: "Child",
+    dataIndex: "tChild",
+    key: "tChild"
+  }
+];
+
+const OT = Form.create({ name: "tj" })(OrderedTable);
 
 export default connect(
   state => state.tableMap,
   dispatch => bindActionCreators(actionCreators, dispatch)
-)(TJ);
+)(OT);

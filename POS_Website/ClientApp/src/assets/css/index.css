@@ -339,8 +339,11 @@
 }
 
 .table-join {
-  border: 3px solid #18ff5d;
+  /* border: 3px solid #18ff5d;
+  padding: 5px; */
+  background: #8383837c;
   padding: 5px;
+  border-radius: 5px;
 }
 
 .closed-area {
@@ -1238,4 +1241,12 @@
 }
 .select-bill-modal .ant-modal-footer {
   display: none;
+}
+.selected-bill {
+  background: #2fcc71;
+  color: #fff;
+  transition: 0s !important;
+}
+.selected-bill:hover {
+  color: red;
 }
