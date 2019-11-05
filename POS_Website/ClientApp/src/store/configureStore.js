@@ -10,8 +10,7 @@ import * as TableDetail from "./TableDetail";
 
 import * as Discount from "./Modal/Discount";
 import * as SplitBill from "./Modal/SplitBill";
-
-import { Table } from "antd";
+import * as SelectClient from "./Modal/SelectClient";
 
 export default function configureStore(history, initialState) {
   const reducers = {
@@ -21,7 +20,8 @@ export default function configureStore(history, initialState) {
     notiCashier: NotiCashier.reducer,
     tableDetail: TableDetail.reducer,
     discount: Discount.reducer,
-    splitBill: SplitBill.reducer
+    splitBill: SplitBill.reducer,
+    selectClient: SelectClient.reducer
   };
 
   const middleware = [thunk, routerMiddleware(history)];

@@ -200,10 +200,18 @@ class SplitBillAmount extends Component {
     });
   };
 
-  selectRow = record => {
-    console.log(record);
+  selectRowLeft = record => {
     this.setState({
-      selectedRow: record,
+      selectedRowLeft: record,
+      selectedRowRight: undefined,
+      quantity: record.qTy
+    });
+  };
+
+  selectRowRight = record => {
+    this.setState({
+      selectedRowLeft: undefined,
+      selectedRowRight: record,
       quantity: record.qTy
     });
   };
@@ -221,10 +229,10 @@ class SplitBillAmount extends Component {
   };
 
   moveToRight = async () => {
-    const { selectedRow, quantity, newCheckNo } = this.state;
+    const { selectedRowLeft, quantity, newCheckNo } = this.state;
     const data = {
       QtyTranfer: quantity,
-      OrgTrnSeq: selectedRow.trnSeq,
+      OrgTrnSeq: selectedRowLeft.trnSeq,
       NewCheckNo: newCheckNo
     };
     const res = await this.props.splitTransfer(data);
@@ -233,23 +241,31 @@ class SplitBillAmount extends Component {
       this.refreshData();
       // this.props.requestBillDetail();
       this.setState({
-        selectedRow: undefined,
+        selectedRowLeft: undefined,
         quantity: 0
       });
     }
-    // var temp = [];
-    // console.log(selectedRow);
-    // billDetailTmp.push(selectedRow);
-    // billDetail.forEach(item => {
-    //   if (item.trnSeq !== selectedRow.trnSeq) {
-    //     temp.push(item);
-    //   }
-    // });
-    // this.setState({
-    //   billDetail: temp,
-    //   billDetailTmp,
-    //   selectedRow: undefined
-    // });
+  };
+
+  moveToLeft = async () => {
+    const { selectedRowRight, quantity, newCheckNo } = this.state;
+    const { checkNo } = this.props;
+
+    const data = {
+      QtyTranfer: quantity,
+      OrgTrnSeq: selectedRowRight.trnSeq,
+      NewCheckNo: checkNo
+    };
+    const res = await this.props.splitTransfer(data);
+    console.log(res);
+    if (res.status === 200) {
+      this.refreshData();
+      // this.props.requestBillDetail();
+      this.setState({
+        selectedRowLeft: undefined,
+        quantity: 0
+      });
+    }
   };
 
   changeQuantity = e => {
@@ -258,16 +274,31 @@ class SplitBillAmount extends Component {
     });
   };
 
+  selectOtherTable = async checkNo => {
+    this.setState({
+      newCheckNo: checkNo,
+      otherModalVisible: false
+    });
+    const dataNewBill = {
+      SelectedGuest: "0",
+      CheckNo: checkNo,
+      SelectedCourse: "0"
+    };
+    await this.props.requestNewBillDetail(dataNewBill);
+  };
+
   render() {
     const {
       number,
       guest1Number,
       guestArr,
-      selectedRow,
+      selectedRowLeft,
+      selectedRowRight,
       newCheckNo,
-
       quantity
     } = this.state;
+    console.log(selectedRowLeft);
+    console.log(selectedRowRight);
     const { newBillDetail, checkNo, splitBillDetail } = this.props;
     return (
       <div>
@@ -344,12 +375,12 @@ class SplitBillAmount extends Component {
                 <Table
                   className="bill-detail-table"
                   onRow={record => ({
-                    onClick: () => this.selectRow(record)
+                    onClick: () => this.selectRowLeft(record)
                     // this.handleChangeQuantity(record)
                   })}
                   rowClassName={(record, index) =>
-                    selectedRow
-                      ? record.o === selectedRow.o
+                    selectedRowLeft
+                      ? record.trnSeq === selectedRowLeft.trnSeq
                         ? "selected-row"
                         : ""
                       : ""
@@ -370,7 +401,7 @@ class SplitBillAmount extends Component {
 
                 <div
                   className={`btn ${
-                    !selectedRow || newCheckNo === "" ? "disabled" : ""
+                    !selectedRowLeft || newCheckNo === "" ? "disabled" : ""
                   }`}
                   onClick={() => this.moveToRight()}
                 >
@@ -379,17 +410,22 @@ class SplitBillAmount extends Component {
 
                 <div
                   className={`btn ${
-                    !selectedRow || newCheckNo === "" ? "disabled" : ""
+                    !selectedRowRight || newCheckNo === "" ? "disabled" : ""
                   }`}
+                  onClick={() => this.moveToLeft()}
                 >
                   <Icon type="left" />
                 </div>
+
                 <div
-                  className={`btn quantity ${!selectedRow ? "disabled" : ""}`}
+                  className={`btn quantity ${
+                    !selectedRowLeft && !selectedRowRight ? "disabled" : ""
+                  }`}
                 >
                   {/* <span>{quantity}</span> */}
                   <input value={quantity} onChange={this.changeQuantity} />
                 </div>
+
                 <div className={`btn `} onClick={() => this.showOtherModal()}>
                   Other
                 </div>
@@ -417,12 +453,12 @@ class SplitBillAmount extends Component {
                 <Table
                   className="bill-detail-table"
                   onRow={record => ({
-                    onClick: () => this.selectRow(record)
+                    onClick: () => this.selectRowRight(record)
                     // this.handleChangeQuantity(record)
                   })}
                   rowClassName={(record, index) =>
-                    selectedRow
-                      ? record.o === selectedRow.o
+                    selectedRowRight
+                      ? record.trnSeq === selectedRowRight.trnSeq
                         ? "selected-row"
                         : ""
                       : ""
@@ -462,6 +498,7 @@ class SplitBillAmount extends Component {
             tableCode={checkNo}
             cancelJoin={this.cancelOtherModal}
             okJoin={this.handleOkJoin}
+            selectOtherTable={this.selectOtherTable}
           />
         </Modal>
       </div>

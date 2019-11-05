@@ -9,6 +9,7 @@ import TableMerge from "./Modal/TableMerge";
 import Discount from "./Modal/Discount";
 import ItemDiscount from "./Modal/ItemDiscount";
 import SplitBill from "./Modal/SplitBill";
+import SelectClient from "./Modal/SelectClient";
 // import { actionCreators } from "../../store/TableDetail";
 import {
   Icon,
@@ -61,7 +62,8 @@ class TableDetail2 extends Component {
       mergeModalVisible: false,
       discountModalVisible: false,
       itemDiscountModalVisible: false,
-      splitBillModalVisible: false
+      splitBillModalVisible: false,
+      selectClientModalVisible: false
     };
   }
 
@@ -428,14 +430,14 @@ class TableDetail2 extends Component {
   };
 
   handleCancelUpdateRequest = async () => {
-    await this.setState({
+    this.setState({
       aRMVisible: false
     });
     this.clearRequests();
   };
 
   selectGuest = async guest => {
-    await this.setState({
+    this.setState({
       selectedGuest: guest
     });
     await this.requestBillDetail();
@@ -867,6 +869,39 @@ class TableDetail2 extends Component {
     });
   };
 
+  showSelectClientModal = () => {
+    this.setState({
+      selectClientModalVisible: true
+    });
+  };
+
+  refreshTableDetail = async () => {
+    const tableDetail = await this.props.getTableDetail(this.state.checkNo);
+    this.setState({
+      tableDetail
+    });
+  };
+
+  cancelSelectClientModal = async status => {
+    if (status === "success") {
+      this.refreshTableDetail();
+    }
+    this.setState({
+      selectClientModalVisible: false
+    });
+  };
+
+  cancelClient = async () => {
+    const data = {
+      CheckNo: this.state.checkNo
+    };
+    const res = await this.props.cancelClient(data);
+    if (res.status === 200) {
+      message.success("Canceled Client");
+      this.refreshTableDetail();
+    }
+  };
+
   render() {
     const {
       tableDetail,
@@ -889,7 +924,8 @@ class TableDetail2 extends Component {
       guestPay,
       discountModalVisible,
       itemDiscountModalVisible,
-      splitBillModalVisible
+      splitBillModalVisible,
+      selectClientModalVisible
     } = this.state;
     const {
       menus,
@@ -1220,7 +1256,11 @@ class TableDetail2 extends Component {
                   <Icon type="dollar" />
                   Pay Cash
                 </Button>
-                <Button className="btn-d" icon="user">
+                <Button
+                  className="btn-d"
+                  icon="user"
+                  onClick={() => this.showSelectClientModal()}
+                >
                   Select Client
                 </Button>
                 <Button className="btn-d" onClick={() => this.showMergeModal()}>
@@ -1235,7 +1275,11 @@ class TableDetail2 extends Component {
                   <Icon type="bell" />
                   Other Pay
                 </Button>
-                <Button className="btn-d" icon="user-delete">
+                <Button
+                  className="btn-d"
+                  icon="user-delete"
+                  onClick={() => this.cancelClient()}
+                >
                   Cancel Client
                 </Button>
                 <Button
@@ -1872,6 +1916,19 @@ class TableDetail2 extends Component {
               }
               requestBillDetail={this.requestBillDetail}
               // myPeriod={tableDetail.mealNo}
+            />
+          )}
+        </Modal>
+        <Modal
+          title="Search Client Information"
+          visible={selectClientModalVisible}
+          onCancel={this.cancelSelectClientModal}
+          className="select-client-modal"
+        >
+          {selectClientModalVisible && (
+            <SelectClient
+              checkNo={checkNo}
+              onCancel={this.cancelSelectClientModal}
             />
           )}
         </Modal>

@@ -358,6 +358,17 @@ export const actionCreators = {
     } catch (e) {
       console.log(e.message);
     }
+  },
+
+  cancelClient: data => async () => {
+    try {
+      var url = "api/CancelClient/CancelClientInfo?";
+      const params = dataServices.dataToParams(data);
+      const res = await dataServices.get(url + params);
+      return res;
+    } catch (e) {
+      console.log(e.message);
+    }
   }
 };
 

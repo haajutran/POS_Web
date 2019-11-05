@@ -2,21 +2,7 @@ import React, { Component } from "react";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { actionCreators } from "../../store/TableMap";
-import {
-  Icon,
-  Badge,
-  Row,
-  Col,
-  Input,
-  Button,
-  Table,
-  Form,
-  Select,
-  Modal,
-  List
-} from "antd";
-
-const { TextArea, Search } = Input;
+import { message, Input, Button, Table, Form, Modal, List } from "antd";
 
 class OrderedTable extends Component {
   constructor(props) {
@@ -85,7 +71,7 @@ class OrderedTable extends Component {
       });
       this.showSelectBillModal();
     } else {
-      alert("asdsad");
+      this.checkBill(tableBills[0].checkNo);
     }
   };
 
@@ -102,6 +88,37 @@ class OrderedTable extends Component {
     });
   };
 
+  confirmSelectBillModal = () => {
+    const checkNo = this.state.selectedBill.checkNo;
+    this.checkBill(checkNo);
+  };
+
+  checkBill = async checkNo => {
+    const dataGetBill = {
+      SelectedGuest: "0",
+      CheckNo: checkNo,
+      SelectedCourse: "0"
+    };
+    const billDetail = await this.props.getBillDetail(dataGetBill);
+    var isValid = true;
+    billDetail.data.forEach(item => {
+      if (isValid) {
+        if (item.baseSub < 0) {
+          isValid = false;
+          message.warn("Bill has discount!");
+          return false;
+        }
+      }
+    });
+    if (isValid) {
+      this.setState({
+        selectBillModalVisible: false,
+        bills: []
+      });
+      this.props.selectOtherTable(checkNo);
+    }
+  };
+
   selectBill = bill => {
     this.setState({
       selectedBill: bill
@@ -111,7 +128,7 @@ class OrderedTable extends Component {
   render() {
     // console.log(statisticSelected);
     const { choseTable, bills, selectedBill } = this.state;
-    console.log(selectedBill);
+    console.log(bills);
     const { tableAreas, tableTypes, isLoading, tableCode } = this.props;
     return (
       <div>
@@ -148,7 +165,7 @@ class OrderedTable extends Component {
                     item.bkTbl === "0" &&
                     item.subTableNo === "1" &&
                     item.checkNo !== "0" &&
-                    item.tableCode !== tableCode ? (
+                    item.checkNo !== tableCode ? (
                       <List.Item onClick={() => this.chooseTable(item)}>
                         <div
                           className={
@@ -186,11 +203,10 @@ class OrderedTable extends Component {
           )}
         </div>
         <Modal
-          title="Modal"
+          title={`Table: ${choseTable}`}
           visible={this.state.selectBillModalVisible}
-          onOk={this.hideSelectBillModal}
+          onOk={this.confirmSelectBillModal}
           onCancel={this.hideSelectBillModal}
-          className="select-bill-modal"
         >
           <Table
             dataSource={bills}

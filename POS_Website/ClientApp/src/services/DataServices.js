@@ -82,6 +82,7 @@ export const post = async (url, data) => {
     return res;
   } catch (e) {
     console.log(e.message);
+    message.error(e.message);
     return e.response;
   }
 };

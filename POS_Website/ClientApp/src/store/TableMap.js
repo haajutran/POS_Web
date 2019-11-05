@@ -28,6 +28,7 @@ export const actionCreators = {
       dispatch({ type: receiveTableTypesType, tableTypes: [] });
     }
   },
+
   requestTableAreas: () => async dispatch => {
     try {
       dispatch({ type: requestTableAreasType });
@@ -51,10 +52,11 @@ export const actionCreators = {
         dispatch({ type: receiveTableAreasType, tableAreas: tasRes.data });
       }
     } catch (e) {
-      console.log(e);
+      console.log(e.response);
       dispatch({ type: receiveTableAreasType, tableAreas: [] });
     }
   },
+
   requestRVCQuickInfomation: () => async dispatch => {
     try {
       dispatch({ type: requestRVCQuickInfomationType });
@@ -68,10 +70,11 @@ export const actionCreators = {
         });
       }
     } catch (e) {
-      console.log(e);
+      console.log(e.response);
       dispatch({ type: receiveRVCQuickInfomationType, RVCQuickInfomation: {} });
     }
   },
+
   requestPOSInfo: () => async () => {
     try {
       const rvcNo = sessionStorage.getItem("rvcNo");
@@ -83,9 +86,10 @@ export const actionCreators = {
         sessionStorage.setItem("posDate", res.data[0].posDate);
       }
     } catch (e) {
-      console.log(e);
+      console.log(e.response);
     }
   },
+
   checkTableHold: checkNo => async () => {
     try {
       const res = await dataServices.get(
@@ -95,7 +99,19 @@ export const actionCreators = {
         return res.data[0];
       }
     } catch (e) {
-      console.log(e);
+      console.log(e.response);
+    }
+  },
+
+  getBillDetail: data => async () => {
+    try {
+      var url = "api/Slipt/GetTmpCheckNo?";
+      const params = dataServices.dataToParams(data);
+      const res = await dataServices.get(url + params);
+      console.log(res);
+      return res;
+    } catch (e) {
+      console.log(e.response);
     }
   }
 };

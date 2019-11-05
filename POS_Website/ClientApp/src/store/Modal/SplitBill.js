@@ -24,9 +24,10 @@ export const actionCreators = {
 
       dispatch({ type: receiveNewBillDetailType, newBillDetail: res.data });
     } catch (e) {
-      console.log(e.message);
+      console.log(e.response);
     }
   },
+
   requestSplitBillDetail: data => async dispatch => {
     try {
       dispatch({ type: requestSplitBillDetailType });
@@ -38,9 +39,10 @@ export const actionCreators = {
 
       dispatch({ type: receiveSplitBillDetailType, splitBillDetail: res.data });
     } catch (e) {
-      console.log(e.message);
+      console.log(e.response);
     }
   },
+
   splitEqualPart: data => async () => {
     try {
       var url = `api/Slipt/SliptEqualPart?`;
@@ -48,9 +50,10 @@ export const actionCreators = {
       const res = await dataService.get(url + params);
       return res;
     } catch (e) {
-      console.log(e.message);
+      console.log(e.response);
     }
   },
+
   splitAmount: data => async () => {
     try {
       var url = `api/Slipt/SliptAmount?`;
@@ -58,18 +61,20 @@ export const actionCreators = {
       const res = await dataService.get(url + params);
       return res;
     } catch (e) {
-      console.log(e.message);
+      console.log(e.response);
     }
   },
+
   createNewCheck: checkNo => async () => {
     try {
       var url = `api/Slipt/SliptCreateNewCheck?CheckNo=${checkNo}`;
       const res = await dataService.get(url);
       return res;
     } catch (e) {
-      console.log(e.message);
+      console.log(e.response);
     }
   },
+
   splitTransfer: data => async () => {
     try {
       var url = `api/Slipt/SliptTranfer?`;
@@ -77,7 +82,7 @@ export const actionCreators = {
       const res = await dataService.get(url + params);
       return res;
     } catch (e) {
-      console.log(e.message);
+      console.log(e.response);
     }
   }
 };
