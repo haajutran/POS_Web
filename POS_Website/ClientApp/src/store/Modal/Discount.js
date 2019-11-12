@@ -18,6 +18,7 @@ export const actionCreators = {
       dispatch({ type: requestListDiscountType });
       const url = `api/Discount/ListDiscount?CheckNo=${checkNo}`;
       const res = await dataService.get(url);
+      console.log(res);
       dispatch({ type: receiveListDiscountType, listDiscount: res.data });
     } catch (e) {
       console.log(e.message);

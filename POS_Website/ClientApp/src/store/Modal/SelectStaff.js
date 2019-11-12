@@ -1,14 +1,14 @@
 import * as dataService from "../../services/DataServices";
 
-const requestClientsType = "REQUEST_CLIENTS";
-const receiveClientsType = "RECEIVE_CLIENTS";
+const requestStaffsType = "REQUEST_STAFFS";
+const receiveStaffsType = "RECEIVE_STAFFS";
 
 const initialState = {
-  clients: []
+  staffs: []
 };
 
 export const actionCreators = {
-  filterClients: data => async dispatch => {
+  filterStaffs: data => async dispatch => {
     try {
       dispatch({ type: requestClientsType });
 
@@ -22,7 +22,7 @@ export const actionCreators = {
       console.log(e.response);
     }
   },
-  clearClients: () => async dispatch => {
+  clearStaffs: () => async dispatch => {
     try {
       dispatch({ type: receiveClientsType, clients: [] });
     } catch (e) {
@@ -34,17 +34,17 @@ export const actionCreators = {
 export const reducer = (state, action) => {
   state = state || initialState;
 
-  if (action.type === requestClientsType) {
+  if (action.type === requestStaffsType) {
     return {
       ...state,
       isLoading: true
     };
   }
 
-  if (action.type === receiveClientsType) {
+  if (action.type === receiveStaffsType) {
     return {
       ...state,
-      clients: action.clients,
+      staffs: action.staffs,
       isLoading: false
     };
   }

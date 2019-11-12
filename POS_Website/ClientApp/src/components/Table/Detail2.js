@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { actionCreators } from "../../store/TableDetail";
 import * as TimeServices from "../../services/TimeServices";
 import * as CurrencyFormat from "react-currency-format";
-import BackspaceIcon from "../../assets/images/backspace-icon.png";
 import TableMerge from "./Modal/TableMerge";
 import Discount from "./Modal/Discount";
 import ItemDiscount from "./Modal/ItemDiscount";
@@ -318,7 +317,7 @@ class TableDetail2 extends Component {
       message.warning("Please input quantity!");
       return;
     }
-    if (voidQty.replace.includes("..")) {
+    if (voidQty.includes("..")) {
       message.error("Wrong input!");
       return;
     }
@@ -902,6 +901,35 @@ class TableDetail2 extends Component {
     }
   };
 
+  handleSelectClient = async selectedClient => {
+    const data = {
+      ClientCode: selectedClient.clientFolioNum,
+      CheckNo: this.state.checkNo
+    };
+    const res = await this.props.selectClient(data);
+
+    if (res.status === 200) {
+      message.success("Selected Client");
+      this.cancelSelectClientModal("success");
+    }
+  };
+
+  clientDiscount = async () => {
+    const { tableDetail } = this.state;
+    console.log(tableDetail);
+    const data = {
+      CheckNo: this.state.checkNo,
+      MyPeriod: tableDetail.mealNo
+    };
+    const res = await this.props.clientDiscount(data);
+    console.log(res);
+    if (res.status === 200) {
+      message.success("Client Discount success");
+      this.refreshTableDetail();
+      this.requestBillDetail();
+    }
+  };
+
   render() {
     const {
       tableDetail,
@@ -944,9 +972,9 @@ class TableDetail2 extends Component {
           <Col className="detail-page">
             <div className="dt2-h">
               <Row>
-                <Col xl={18}>
+                <Col md={16} xl={18}>
                   <Row>
-                    <Col xl={18}>
+                    <Col md={18}>
                       <Row>
                         <Col xl={6}>
                           <b>Open Bill</b>
@@ -958,7 +986,7 @@ class TableDetail2 extends Component {
                         </Col>
                       </Row>
                     </Col>
-                    <Col xl={6}>
+                    <Col md={6}>
                       <Row>
                         <Col xl={6}>
                           <b>Table</b>
@@ -972,7 +1000,7 @@ class TableDetail2 extends Component {
                         </Col>
                       </Row>
                     </Col>
-                    <Col xl={18}>
+                    <Col md={18}>
                       <Row>
                         <Col xl={6}>
                           <b>Open By</b>
@@ -982,7 +1010,7 @@ class TableDetail2 extends Component {
                         </Col>
                       </Row>
                     </Col>
-                    <Col xl={6}>
+                    <Col md={6}>
                       <Row>
                         <Col xl={6}>
                           <b>Adult</b>
@@ -992,7 +1020,7 @@ class TableDetail2 extends Component {
                         </Col>
                       </Row>
                     </Col>
-                    <Col xl={18}>
+                    <Col md={18}>
                       <Row>
                         <Col xl={6}>
                           <b>Client</b>
@@ -1002,7 +1030,7 @@ class TableDetail2 extends Component {
                         </Col>
                       </Row>
                     </Col>
-                    <Col xl={6}>
+                    <Col md={6}>
                       <Row>
                         <Col xl={6}>
                           <b>Child</b>
@@ -1014,7 +1042,7 @@ class TableDetail2 extends Component {
                     </Col>
                   </Row>
                 </Col>
-                <Col xl={3} className="col-custom">
+                <Col md={4} xl={3} className="col-custom">
                   <div className="sz">
                     <div className="checkNo">{checkNo}</div>
                     <div className="time">
@@ -1022,7 +1050,7 @@ class TableDetail2 extends Component {
                     </div>
                   </div>
                 </Col>
-                <Col xl={3} className="col-custom">
+                <Col md={4} xl={3} className="col-custom">
                   <Button className="hb-btn" onClick={() => this.hideBill()}>
                     Hide Bill
                   </Button>
@@ -1125,100 +1153,100 @@ class TableDetail2 extends Component {
                     {billDetail && billDetail[0] && (
                       <Row>
                         <div className="row">
-                          <Col span={8}>
+                          <div className="col-1">
                             <b>Sub Amount</b>
-                          </Col>
-                          <Col span={16}>
+                          </div>
+                          <div className="col-2">
                             <CurrencyFormat
                               value={billDetail[0].totalSubAmount}
                               displayType={"text"}
                               thousandSeparator={true}
                             />
-                          </Col>
+                          </div>
                         </div>
                         <div className="row">
-                          <Col span={8}>
+                          <div className="col-1">
                             <b>Tax Amount</b>
-                          </Col>
-                          <Col span={16}>
+                          </div>
+                          <div className="col-2">
                             <CurrencyFormat
                               value={billDetail[0].totalTaxAmount}
                               displayType={"text"}
                               thousandSeparator={true}
                             />
-                          </Col>
+                          </div>
                         </div>
                         <div className="row">
-                          <Col span={8}>
+                          <div className="col-1">
                             <b>Discount</b>
-                          </Col>
-                          <Col span={16}>
+                          </div>
+                          <div className="col-2">
                             <CurrencyFormat
                               value={billDetail[0].totalDiscount}
                               displayType={"text"}
                               thousandSeparator={true}
                             />
-                          </Col>
+                          </div>
                         </div>
                         <div className="row">
-                          <Col span={8}>
+                          <div className="col-1">
                             <b>Total Amount</b>
-                          </Col>
-                          <Col span={16}>
+                          </div>
+                          <div className="col-2">
                             <CurrencyFormat
                               value={billDetail[0].totalAmount}
                               displayType={"text"}
                               thousandSeparator={true}
                             />
-                          </Col>
+                          </div>
                         </div>
                         <div className="row">
-                          <Col span={8}>
+                          <div className="col-1">
                             <b>Service Charge</b>
-                          </Col>
-                          <Col span={16}>
+                          </div>
+                          <div className="col-2">
                             <CurrencyFormat
                               value={billDetail[0].totalServiceCharge}
                               displayType={"text"}
                               thousandSeparator={true}
                             />
-                          </Col>
+                          </div>
                         </div>
                         <div className="row">
-                          <Col span={8}>
+                          <div className="col-1">
                             <b>Total Due</b>
-                          </Col>
-                          <Col span={16}>
+                          </div>
+                          <div className="col-2">
                             <CurrencyFormat
                               value={billDetail[0].totalDue}
                               displayType={"text"}
                               thousandSeparator={true}
                             />
-                          </Col>
+                          </div>
                         </div>
                         <div className="row">
-                          <Col span={8}>
+                          <div className="col-1">
                             <b>Special Tax</b>
-                          </Col>
-                          <Col span={16}>
+                          </div>
+                          <div className="col-2">
                             <CurrencyFormat
                               value={billDetail[0].totalSpecialTax}
                               displayType={"text"}
                               thousandSeparator={true}
                             />
-                          </Col>
+                          </div>
                         </div>
                         <div className="row">
-                          <Col span={8}>
+                          <div className="col-1">
                             <b>Due USD</b>
-                          </Col>
-                          <Col span={16}>
+                          </div>
+                          <div className="col-2">
                             <CurrencyFormat
                               value={billDetail[0].totalDueUSD}
                               displayType={"text"}
                               thousandSeparator={true}
                             />
-                          </Col>
+                          </div>
                         </div>
                       </Row>
                     )}
@@ -1238,7 +1266,9 @@ class TableDetail2 extends Component {
                   <span>Apply Voucher</span>
                 </Button>
                 <Button className="btn-d">Auto Discount</Button>
-                <Button className="btn-d">Client Discount</Button>
+                <Button className="btn-d" onClick={() => this.clientDiscount()}>
+                  Client Discount
+                </Button>
                 <Button className="btn-d">Order Info</Button>
               </div>
               <div className="btn-sp">
@@ -1929,6 +1959,7 @@ class TableDetail2 extends Component {
             <SelectClient
               checkNo={checkNo}
               onCancel={this.cancelSelectClientModal}
+              handleSelectClient={this.handleSelectClient}
             />
           )}
         </Modal>

@@ -750,12 +750,16 @@
 .dt2-actions .btn-d {
   padding: 0;
   height: 48px;
-  width: 115px;
+  width: 100px;
   margin-bottom: 4px;
   white-space: normal;
   word-wrap: break-word;
 }
 .dt2-actions .btn-d span {
+  margin-left: 0;
+  font-size: 12px;
+}
+.dt2-actions .sp-btn span {
   margin-left: 0;
 }
 .bz.bz2 {
@@ -769,6 +773,14 @@
   height: 32px;
   padding: 5px 10px 0 10px;
   border-bottom: 1px solid #d9d9d9;
+  display: flex;
+}
+.bz .row .col-1 {
+  width: 105px;
+}
+.bz .row .col-2 {
+  min-width: 128px;
+  overflow: hidden;
 }
 .bz .row:last-child {
   border-bottom: none;

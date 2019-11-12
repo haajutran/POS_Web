@@ -15,6 +15,7 @@ import {
   Modal,
   message
 } from "antd";
+import SelectStaff from "../Modal/SelectStaff";
 
 class Discount extends Component {
   constructor(props) {
@@ -190,13 +191,11 @@ class Discount extends Component {
     }
     console.log(selectedClasses);
     const { checkNo } = this.props;
-    var selectClassesCode = "[";
+    var selectClassesCode = "";
     selectedClasses.map((item, i) => {
       selectClassesCode += item.clsCode;
-      if (i === selectedClasses.length - 1) {
-        selectClassesCode += "]";
-      } else {
-        selectClassesCode += ",";
+      if (i !== selectedClasses.length - 1) {
+        selectClassesCode += ";";
       }
     });
 
@@ -225,6 +224,28 @@ class Discount extends Component {
     });
   };
 
+  cancelSelectClientModal = async status => {
+    if (status === "success") {
+      // this.refreshTableDetail();
+    }
+    this.setState({
+      selectClientModalVisible: false
+    });
+  };
+
+  handleSelectClient = async selectedClient => {
+    const data = {
+      ClientCode: selectedClient.clientFolioNum,
+      CheckNo: this.props.checkNo
+    };
+    // const res = await this.props.selectClient(data);
+
+    // if (res.status === 200) {
+    //   message.success("Selected Client");
+    //   this.cancelSelectClientModal("success");
+    // }
+  };
+
   render() {
     const {
       selectStaffModalVisible,
@@ -234,8 +255,7 @@ class Discount extends Component {
       selectedDiscount,
       onTotal
     } = this.state;
-    const { listDiscount, listClassByBill } = this.props;
-    console.log(selectedClasses);
+    const { listDiscount, listClassByBill, checkNo } = this.props;
     return (
       <div className="discount">
         <Row>
@@ -401,7 +421,7 @@ class Discount extends Component {
           </Col>
         </Row>
 
-        <div>
+        {/*     
           <Modal
             title="Select Staff"
             visible={selectStaffModalVisible}
@@ -409,8 +429,22 @@ class Discount extends Component {
             onOk={() => this.selectStaff()}
           >
             Hello
-          </Modal>
-        </div>
+          </Modal> */}
+
+        <Modal
+          title="Select Staff"
+          visible={selectStaffModalVisible}
+          onCancel={this.cancelSelectStaffModal}
+          className="select-client-modal"
+        >
+          {selectStaffModalVisible && (
+            <SelectStaff
+              checkNo={checkNo}
+              onCancel={this.selectStaffModalVisible}
+              handleSelectClient={this.handleSelectClient}
+            />
+          )}
+        </Modal>
       </div>
     );
   }

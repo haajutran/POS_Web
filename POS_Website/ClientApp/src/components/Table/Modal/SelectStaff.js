@@ -37,10 +37,6 @@ class SelectClient extends Component {
     });
   };
 
-  componentWillUnmount() {
-    this.props.clearClients();
-  }
-
   selectClient = record => {
     this.setState({
       selectedClient: record

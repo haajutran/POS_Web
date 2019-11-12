@@ -80,7 +80,7 @@ export const actionCreators = {
       const res = await dataServices.get(
         `api/BillInfo/GetBillDetail?ViewSum=${viewSum}&SelectedGuest=${selectedGuest}&CheckNo=${checkNo}&SelectedCourse=${selectedCourse}`
       );
-      console.log(res);
+
       if (res.status === 200) {
         dispatch({ type: receiveBillDetailType, billDetail: res.data });
       }
@@ -214,12 +214,10 @@ export const actionCreators = {
   },
   addRequest: data => async () => {
     try {
-      const url = `api/AddRequest/AddRequest?ICode=${data.ICode}&CGCode=${data.CGCode}&CGName=${data.CGName}&Orther=${data.Orther}&IClass=${data.IClass}&Item=${data.Item}`;
-      const res = await dataServices.post(
-        `api/AddRequest/AddRequest?ICode=${data.ICode}&CGCode=${data.CGCode}&CGName=${data.CGName}&Orther=${data.Orther}&IClass=${data.IClass}&Item=${data.Item}`,
-        ""
-      );
-      console.log(url);
+      var url = "api/AddRequest/AddRequest?";
+      const params = dataServices.dataToParams(data);
+      const res = await dataServices.post(url + params, "");
+      console.log(params);
       return res.status;
     } catch (e) {
       console.log(e.message);
@@ -368,6 +366,28 @@ export const actionCreators = {
       return res;
     } catch (e) {
       console.log(e.message);
+    }
+  },
+  clientDiscount: data => async () => {
+    try {
+      var url = "api/ClientDiscount/ClientDiscount?";
+      const params = dataServices.dataToParams(data);
+      const res = await dataServices.get(url + params);
+      return res;
+    } catch (e) {
+      console.log(e.message);
+    }
+  },
+  selectClient: data => async () => {
+    try {
+      var url = "api/SelectClient/ClientInfo?";
+      const params = dataServices.dataToParams(data);
+      console.log(url + params);
+      const res = await dataServices.post(url + params, "");
+
+      return res;
+    } catch (e) {
+      console.log(e.response);
     }
   }
 };

@@ -22,7 +22,7 @@ function getHeaderWithoutBearer() {
 export const dataToParams = data => {
   var params = "";
   for (let [key, value] of Object.entries(data)) {
-    if (value.toString().length > 0) {
+    if (value && value.toString().length > 0) {
       params = params + key + "=" + value + "&";
     }
   }
